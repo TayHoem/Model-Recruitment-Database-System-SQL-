@@ -1,0 +1,1703 @@
+/*Create table*/
+drop table resume_selection；
+drop table resume；
+drop table advertisement_details；
+drop table agent；
+drop table interview；
+drop table test；
+drop table candidates；
+drop table recruitment_job_details；
+drop table offer_letter；
+drop table employee；
+drop table department；
+
+
+create table department (
+  dept_id varchar(3) not null,
+  department_name varchar(40) not null,
+  department_duty varchar(50) not null,
+primary key(dept_id),
+constraint chk_dept_id check (REGEXP_LIKE(dept_id,'[D]{1}[0-9]{2}'))
+);
+
+
+create table employee(
+	employee_ID varchar(10) not null,
+	manager_ID varchar(10),
+	employee_Name varchar(27) not null,
+	employee_Gender varchar(10) not null,
+	dept_ID varchar(10) not null,
+	job_Position varchar(45) not null,
+	total_Work_Year number(2), 
+	employee_Salary number(6,2),
+PRIMARY KEY (employee_ID),
+CONSTRAINT chk_gender CHECK (UPPER(employee_Gender) in ('M', 'F')),
+FOREIGN KEY (dept_ID) references department(dept_ID),
+constraint chk_employee_ID CHECK (REGEXP_LIKE(employee_ID,'[S]{1}[T]{1}[F]{1}[F]{1}[0-9]{3}'))
+);
+
+
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD/MM/YYYY'; 
+
+create table test (
+	test_ID           varchar(10)  not null,
+	employee_ID       varchar(10)  not null,
+	created_Date DATE,
+	using_Date   DATE,
+PRIMARY KEY (test_ID),
+constraint chk_test_id CHECK (REGEXP_LIKE(test_ID ,'[T]{1}[A-Z]{1}[0-9]{4}')),
+FOREIGN KEY (employee_ID ) references employee(employee_ID )
+);
+
+create table agent(
+	agent_id varchar(6) not null,
+	agent_name varchar(30) not null,
+	agent_position varchar(30) not null,
+	no_agent_team number(4) not null,
+	advertisement_exp number(2),
+primary key(agent_id),
+CONSTRAINT chk_agent_id CHECK (REGEXP_LIKE(agent_id,'[A]{1}[G]{1}[0-9]{4}'))
+);
+
+
+create table recruitment_job_details(
+	job_detail_id    varchar(6) not null,
+	employee_ID      varchar(10) not null,
+	job_department   varchar(3),
+	job_position     varchar(35) not null,
+	request_date     date,
+	job_required_exp number(2) not null,
+	job_required_edu varchar(70) not null,
+primary key(job_detail_id),
+CONSTRAINT chk_job_detail_id CHECK (REGEXP_LIKE(job_detail_id,'[J]{1}[D]{1}[0-9]{4}')),
+foreign key(employee_ID) references employee(employee_ID)
+);
+
+
+
+create table advertisement_details(
+    job_detail_id varchar(6) not null,
+    agent_id varchar(6) not null,
+    date_start date,
+    advertisement_name varchar(60) not null,
+    recruitment_platform varchar(20),
+primary key(job_detail_id,agent_id),
+foreign key(job_detail_id) references recruitment_job_details(job_detail_id),
+foreign key(agent_id) references agent(agent_id)
+);
+
+create table CANDIDATES (
+  Candidates_id varchar(5) not null,
+  Candidates_name varchar(30) not null,
+  Candidates_gender varchar(1) not null,
+  Candidates_job varchar(35) not null,
+  Candidates_expected_Salary number(10,2) not null,
+  job_detail_id varchar(6) not null,
+primary key(Candidates_id),
+constraint chk_Candidates_id check (REGEXP_LIKE(Candidates_id,'[C]{1}[0-9]{4}')),
+foreign key(job_detail_id)references recruitment_job_details(job_detail_id)
+);
+
+
+create table offer_letter(
+	offer_letter_id		char(5)				not null,
+	employee_id		varchar(10)				not null,
+	new_emp_name		varchar(15)				not null,
+	work_start_date		date default '01-JAN-2023',
+	work_location		varchar(20)				not null,
+primary key(offer_letter_id),
+foreign key(employee_id) references employee(employee_id),
+constraint chk_offer_letter_id check(REGEXP_LIKE(offer_letter_id,'[L]{1}[0-9]{3}'))
+);
+
+
+create table interview( 
+	interview_id		char(5)				not null,
+	interview_name		varchar(25)				not null,
+	interview_date		date default '01-JAN-2023',
+	candidates_attendance	varchar(7),
+	interview_position	varchar(15)	,
+	candidates_id		varchar(5)				not null,
+	test_id			varchar(10)				not null,
+primary key(interview_id),
+foreign key(candidates_id) references candidates(candidates_id),
+foreign key(test_id) references test(test_id),
+constraint chk_interview_id check (REGEXP_LIKE(interview_id,'[I]{1}[0-9]{4}'))
+);
+
+
+create table RESUME( 
+Resume_id  varchar(7) not null,
+Candidates_ID varchar(5) not null,
+Resume_date date,
+Resume_job varchar(40), 
+Resume_educational varchar(60),
+Job_Experience number(2),
+primary key(Resume_ID),
+foreign key(candidates_id) references candidates(candidates_id),
+constraint chk_Resume_ID check (REGEXP_LIKE(Resume_ID,'[R]{1}_[A]{1}[0-9]{4}'))
+);
+
+
+CREATE TABLE RESUME_SELECTION(
+Resume_selection_ID varchar(8) not null,
+Employee_ID varchar(10) not null,
+Candidates_ID varchar(5) not null,
+Resume_ID varchar(10) not null,
+Selection_Description varchar(50) DEFAULT 'Fulfill all the needed requirement',
+Selection_Date date,
+Candidates_TestResult varchar(6),
+Candidates_InterviewResult varchar(6),
+primary key(Resume_selection_ID),
+foreign key(Employee_ID) references EMPLOYEE(Employee_ID),
+foreign key(Candidates_ID) references CANDIDATES(Candidates_ID),
+foreign key(Resume_ID) references RESUME(Resume_ID),
+constraint chk_Resume_selection_ID check (REGEXP_LIKE(Resume_selection_ID,'[R]{1}[E]{1}_[A-Z]{1}[0-9]{4}'))
+);
+
+
+
+/*insert Data*/
+
+/*department*/
+insert into department values ('D01','Legal department','Provide legal advice');
+insert into department values ('D02','Sales department','Develop sales strategies');
+insert into department values ('D03','Marketing department','Conduct market research');
+insert into department values ('D04','Human Resource department','Manage employee benefits');
+insert into department values ('D05','Information Technology department','Maintain computer systems');
+insert into department values ('D06','Finance department','Manage financial resources and budgets');
+insert into department values ('D07','Customer Service department','Handle customer inquiries');
+insert into department values ('D08','Public Relation department','Manage company image and reputation');
+insert into department values ('D09','Maintenance and Engineering department','Maintain equipment and facilities');
+insert into department values ('D10','Flight Operations department','Manage airline operations');
+
+/*employee*/
+insert into employee values ('STFF002','MNG201','Chow Mei Kuan'       , 'F','D02','Legal Manager'                                ,8 , 7800.50);
+insert into employee values ('STFF001','MNG101','Tan Ah Meng'         , 'M','D01','Sales Manager'                                ,10, 8500.00);
+insert into employee values ('STFF004','MNG401','Tan Mei Ling'        , 'F','D04','Marketing Manager'                            ,9 , 8400.00);
+insert into employee values ('STFF003','MNG301','Lim Chih Kang'       , 'M','D03','HR Manager'                                   ,7 , 7100.85);
+insert into employee values ('STFF006','MNG601','Yap Sai Ting'        , 'M','D06','IT Manager'                                   ,8 , 8990.10);
+insert into employee values ('STFF005','MNG501','Tay Soo Chuan'       , 'F','D05','Financial Manager'                            ,9 , 9500.50);
+insert into employee values ('STFF008','MNG801','Lee Kay Yang'        , 'M','D08','Customer Service Manager'                     ,9 , 8400.40);
+insert into employee values ('STFF007','MNG701','Lim Jie Yao'         , 'M','D07','Production Manager'                           ,9 , 8630.90);
+insert into employee values ('STFF010','MNG001','Lam Xiang Le'        , 'M','D10','Public Relation Manager'                      ,8 , 7852.00);
+insert into employee values ('STFF009','MNG901','Yap Yee Qing'        , 'F','D09','Purchasing Manager'                           ,8 , 8200.20);
+insert into employee values ('STFF012','NULL'  ,'Orville Smythin'     , 'M','D01','Sales Representative'                         ,4 , 5175.66);
+insert into employee values ('STFF011','NULL'  ,'Edwina Cabedo'       , 'M','D01','Account Executive'                            ,1 , 2508.69);
+insert into employee values ('STFF014','NULL'  ,'Maggy Tuxsell'       , 'F','D01','Sales Operations Analyst'                     ,4 , 4727.78);
+insert into employee values ('STFF013','NULL'  ,'Binky Emanuele'      , 'F','D01','Sales Coordinator'                            ,3 , 2928.03);
+insert into employee values ('STFF016','NULL'  ,'Land Farleigh'       , 'M','D01','Inside Sales Representative'                  ,4 , 5793.21);
+insert into employee values ('STFF015','NULL'  ,'Maynard Matteacci'   , 'M','D01','Sales Trainer'                                ,1 , 2993.46);
+insert into employee values ('STFF018','MNG103','Gwenora Helin'       , 'M','D01','Channel Sales Manager'                        ,10, 8760.42);
+insert into employee values ('STFF017','MNG102','Virgilio Chern'      , 'F','D01','Customer Success Manager'                     ,8 , 8400.96);
+insert into employee values ('STFF020','NULL','Mil Glenister'         , 'M','D02','Attorney'                                     ,5 , 2957.81);
+insert into employee values ('STFF019','MNG104','Marleah Kilmurray'   , 'F','D01','Business Development Manager'                 ,9 , 8710.80);
+insert into employee values ('STFF022','NULL','Linnet O''Shevlin'     , 'M','D02','Legal Assistant'                              ,6 , 5304.54);
+insert into employee values ('STFF021','NULL','Gus O''Nion'           , 'M','D01','Sales Trainer'                                ,3 , 4341.98);
+insert into employee values ('STFF024','NULL','Zerk Dulson'           , 'F','D02','Law Clerk'                                    ,5 , 4000.28);
+insert into employee values ('STFF023','NULL','Jamil Milsap'          , 'M','D02','Paralegal'                                    ,4 , 3336.61);
+insert into employee values ('STFF026','MNG202','Syman Dunkerley'     , 'F','D02','Compliance Manager'                           ,9 , 8999.74);
+insert into employee values ('STFF025','NULL','Tiffanie Symcox'       , 'F','D03','HR Consultant'                                ,7 , 5406.53);
+insert into employee values ('STFF028','NULL','Lara Swynfen'          , 'M','D02','Corporate Counsel'                            ,6 , 3582.91);
+insert into employee values ('STFF027','NULL','Solomon Crowcroft'     , 'M','D02','Contracts Administrator'                      ,5 , 3744.22);
+insert into employee values ('STFF030','NULL','Verena Fiorentino'     , 'M','D02','Legal Secretary'                              ,2 , 3863.57);
+insert into employee values ('STFF029','NULL','Colline Manklow'       , 'M','D02','General Counsel'                              ,5 , 3285.81);
+insert into employee values ('STFF032','NULL','Antonie Hurdiss'       , 'F','D03','HR Generalist'                                ,4 , 3361.66);
+insert into employee values ('STFF031','NULL','Justen Clows'          , 'F','D02','Legal Analyst'                                ,4 , 3401.58);
+insert into employee values ('STFF034','MNG302','Brandi Egglestone'   , 'M','D03','Training and Development Manager'             ,9 , 8440.00);
+insert into employee values ('STFF033','NULL','Pierson Adamowitz'     , 'M','D03','HR Assistant'                                 ,3 , 5378.97);
+insert into employee values ('STFF036','NULL','Corine Winkett'        , 'M','D04','Digital Marketing Specialist'                 ,2 , 2509.77);
+insert into employee values ('STFF035','NULL','Kit Birks'             , 'F','D03','HR Data Analyst'                              ,3 , 5934.33);
+insert into employee values ('STFF038','NULL','Modesty Laskey'        , 'F','D03','Onboarding Coordinator'                       ,4 , 4447.07);
+insert into employee values ('STFF037','NULL','Dorey Rickesies'       , 'M','D03','Payroll Specialist'                           ,4 , 3599.13);
+insert into employee values ('STFF040','NULL','Joye Maddox'           , 'M','D03','Talent Acquisition Specialist'                ,5 , 3925.82);
+insert into employee values ('STFF039','MNG303','Gaye Clell'          , 'F','D03','Diversity and Inclusion Manager'              ,9 , 8320.75);
+insert into employee values ('STFF042','MNG402','Kendall Brumhead'    , 'M','D04','Brand Manager'                                ,8 , 7459.12);
+insert into employee values ('STFF041','NULL','Thorpe Jerrard'        , 'M','D03','Wellness Coordinator'                         ,6 , 4469.13);
+insert into employee values ('STFF044','MNG403','Idette Cotte'        , 'M','D04','Content Marketing Manager'                    ,5 , 8620.94);
+insert into employee values ('STFF043','NULL','Josee Doward'          , 'M','D04','Marketing Coordinator'                        ,4 , 2617.93);
+insert into employee values ('STFF046','NULL','Jessee Muddiman'       , 'F','D04','Market Research Analyst'                      ,3 , 2977.68);
+insert into employee values ('STFF045','NULL','Fabe Letford'          , 'M','D04','Social Media Specialist'                      ,4 , 4187.67);
+insert into employee values ('STFF048','NULL','Rosana Drakeley'       , 'F','D05','Financial Analyst'                            ,5 , 3440.85);
+insert into employee values ('STFF047','NULL','Keefer Evans'          , 'F','D04','Creative Director'                            ,3 , 3353.44);
+insert into employee values ('STFF050','NULL','Kristal Hurren'        , 'F','D04','SEO Specialist'                               ,5 , 3882.96);
+insert into employee values ('STFF049','MNG404','Farr Fulloway'       , 'M','D04','Events Manager'                               ,8 , 8990.77);
+insert into employee values ('STFF052','NULL','Silvana Cowper'        , 'M','D05','Tax Specialist'                               ,7 , 4115.79);
+insert into employee values ('STFF051','NULL','Weider Glazyer'        , 'M','D04','PPC Specialist'                               ,6 , 5755.75);
+insert into employee values ('STFF054','MNG502','Sigfried Pepperd'    , 'F','D05','Risk Manager'                                 ,9 , 7560.34);
+insert into employee values ('STFF053','NULL','Marcel Maliffe'        , 'F','D06','Chief Information Officer (CIO)'              ,4 , 4043.09);
+insert into employee values ('STFF056','NULL','Mary Bayless'          , 'F','D05','Cost Accountant'                              ,6 , 2592.48);
+insert into employee values ('STFF055','NULL','Burch Capponer'        , 'F','D05','Credit Analyst'                               ,6 , 3400.49);
+insert into employee values ('STFF058','MNG503','Bill Donkersley'     , 'M','D05','Payroll Manager'                              ,10, 8600.27);
+insert into employee values ('STFF057','NULL','Weidar Sherry'         , 'F','D05','Collections Specialist'                       ,4 , 3080.17);
+insert into employee values ('STFF060','NULL','Arnie Jamary'          , 'F','D05','External Auditor'                             ,5 , 2503.50);
+insert into employee values ('STFF059','NULL','Bambie Enrico'         , 'M','D05','Budget Analyst'                               ,4 , 2604.56);
+insert into employee values ('STFF062','NULL','Christal Deackes'      , 'M','D06','Software Developer'                           ,3 , 4167.76);
+insert into employee values ('STFF061','NULL','Mychal Rean'           , 'M','D05','Accounts Payable Specialist'                  ,2 , 4375.08);
+insert into employee values ('STFF064','NULL','Mikael Lockney'        , 'F','D06','Network Administrator'                        ,5 , 5210.94);
+insert into employee values ('STFF063','NULL','Thaxter Gorke'         , 'F','D07','Production Supervisor'                        ,2 , 4934.57);
+insert into employee values ('STFF066','NULL','Cheryl Hurcombe'       , 'F','D06','Cybersecurity Specialist'                     ,3 , 5773.21);
+insert into employee values ('STFF065','MNG602','Alecia Wileman'      , 'F','D06','IT Project Manager'                           ,10, 8500.37);
+insert into employee values ('STFF068','NULL','Muffin Kettell'        , 'M','D06','Data Analyst'                                 ,3 , 3867.47);
+insert into employee values ('STFF067','NULL','Janeta Itzcovich'      , 'F','D06','Web Developer'                                ,3 , 5101.07);
+insert into employee values ('STFF070','NULL','Sile Escreet'          , 'F','D06','Quality Assurance Tester'                     ,4 , 5212.53);
+insert into employee values ('STFF069','NULL','Philip Scaddon'        , 'M','D06','IT Auditor'                                   ,4 , 5859.01);
+insert into employee values ('STFF072','NULL','Sharon Gingold'        , 'M','D07','Manufacturing Engineer'                       ,6 , 4131.46);
+insert into employee values ('STFF071','NULL','Xenia Lukianovich'     , 'F','D07','Production Planner'                           ,6 , 4914.52);
+insert into employee values ('STFF074','NULL','Edee Pester'           , 'M','D07','Assembly Technician'                          ,3 , 4360.29);
+insert into employee values ('STFF073','NULL','Lyle Tearny'           , 'F','D07','Production Technician'                        ,3 , 4257.87);
+insert into employee values ('STFF076','NULL','Ward Kuhnwald'         , 'M','D07','Material Handler'                             ,2 , 2907.01);
+insert into employee values ('STFF075','NULL','Nobe Sergent'          , 'M','D07','Fabricator'                                   ,5 , 3408.93);
+insert into employee values ('STFF078','NULL','Jacquetta Shiell'      , 'F','D07','Process Technician'                           ,6 , 3676.94);
+insert into employee values ('STFF077','NULL','Letitia Collister'     , 'F','D07','Maintenance Technician'                       ,4 , 2724.49);
+insert into employee values ('STFF080','NULL','Katusha Bonhome'       , 'F','D08','Customer Service Supervisor'                  ,3 , 3118.17);
+insert into employee values ('STFF079','NULL','Gladi Thormwell'       , 'F','D08','Customer Service Representative'              ,5 , 4145.84);
+insert into employee values ('STFF082','NULL','Samuele Giurio'        , 'M','D08','Call Center Agent'                            ,5 , 4435.23);
+insert into employee values ('STFF081','NULL','Gabi Cubuzzi'          , 'M','D08','PR Manager'                 ,4 , 4107.01);
+insert into employee values ('STFF084','NULL','Ashly Seydlitz'        , 'M','D09','Maintenance Test Engineer'                       ,2 , 4798.31);
+insert into employee values ('STFF083','MNG802','Pavia Dangerfield'   , 'M','D08','Customer Service Operations Manager'          ,10, 7560.42);
+insert into employee values ('STFF086','NULL','Colline Drewes'        , 'M','D10','Flight Attendant'                    ,6 , 5407.17);
+insert into employee values ('STFF085','NULL','Armand Garnham'        , 'F','D08','Customer Service Consultant'                  ,5 , 5277.25);
+insert into employee values ('STFF088','NULL','Dukey Terbrugge'       , 'F','D08','Social Media Customer Service Specialist'     ,7 , 3521.05);
+insert into employee values ('STFF087','NULL','Bev Fargher'           , 'F','D08','Call Center Supervisor'               ,5 , 4219.62);
+insert into employee values ('STFF090','NULL','Melony Franklen'       , 'M','D09','Electrical Engineer'                       ,6 , 3562.86);
+insert into employee values ('STFF089','MNG803','Gisella Campa'       , 'F','D08','Reservation Supervisor'                              ,9 , 7950.98);
+insert into employee values ('STFF092','NULL','Arabel Antonazzi'      , 'F','D09','Maintenance Engineer'                          ,4 , 2841.08);
+insert into employee values ('STFF091','MNG902','Cherey Cawkwell'     , 'M','D09','Production Maintenance Engineer'                   ,9 , 8443.92);
+insert into employee values ('STFF094','MNG903','Jackquelin Roth'     , 'M','D09','Maintenance Engineer'                            ,9 , 7560.77);
+insert into employee values ('STFF093','NULL','Quincey Corns'         , 'F','D09','Supplier Quality Engineer'                    ,6 , 5398.28);
+insert into employee values ('STFF096','NULL','Clair Coenraets'       , 'F','D10','Inflight Supervisor'                  ,5 , 3725.14);
+insert into employee values ('STFF095','NULL','Letitia Housecraft'    , 'M','D09','Technical Support Specialist'                             ,2 , 3780.16);
+insert into employee values ('STFF098','NULL','Husein Bonhan'         , 'F','D10','Flight Attendant'                 ,1 , 2965.00);
+insert into employee values ('STFF097','MNG002','Nanny Bench'         , 'M','D10','Pilot'                         ,10, 9600.28);
+insert into employee values ('STFF099','NULL','Hoyt Mingardi'         , 'M','D10','Inflight Trainer'             ,6 , 4399.18);
+insert into employee values ('STFF100','NULL','Caralie Durbann'       , 'F','D10','Inflight Service Manager'                ,5 , 5225.93);
+insert into employee values('STFF101', 'NULL', 'Geraldine Beaufort'	, 'F', 'D10', 'Human Resources Manager', 6, 6100.25);
+insert into employee values('STFF102', 'NULL', 'Jonathan Sampson', 'M', 'D05', 'IT Specialist', 3, 4200.50);
+insert into employee values('STFF103', 'NULL', 'Michael Sullivan', 'M', 'D08', 'Finance Analyst', 4, 4800.75);
+insert into employee values('STFF104', 'NULL', 'Sophia Chen', 'F', 'D07', 'Marketing Coordinator', 2, 3500.00);
+insert into employee values('STFF105', 'NULL', 'John Thompson', 'M', 'D10', 'Investment Analyst', 4, 4600.80);
+insert into employee values('STFF106', 'NULL', 'Emily Harris', 'F', 'D06', 'Operations Manager', 6, 5900.45);
+insert into employee values('STFF107', 'NULL', 'Daniel Kim', 'M', 'D03', 'Software Developer', 2, 3800.20);
+insert into employee values('STFF108', 'NULL', 'Olivia Martinez', 'F', 'D09', 'Public Relations Specialist', 3, 4500.60);
+insert into employee values('STFF109', 'NULL', 'William Jones', 'M', 'D09', 'Accounting Analyst', 4, 4800.90);
+insert into employee values('STFF110', 'NULL', 'Ava Lee', 'F', 'D04', 'Data Analyst', 2, 3900.30);
+insert into employee values('STFF111', 'NULL', 'Josephine Smith', 'F', 'D06', 'Supply Chain Coordinator', 3, 4300.40);
+insert into employee values('STFF112', 'NULL', 'David Johnson', 'M', 'D02', 'Network Administrator', 3, 4200.50);
+insert into employee values('STFF113', 'NULL', 'Sophia Lee', 'F', 'D10', 'Investment Analyst', 4, 4700.70);
+insert into employee values('STFF114', 'NULL', 'Alexander Chen', 'M', 'D07', 'Marketing Coordinator', 2, 3500.00);
+insert into employee values('STFF115', 'NULL', 'Emma Smith', 'F', 'D08', 'Finance Analyst', 3, 4400.60);
+insert into employee values('STFF116', 'NULL', 'Michael Brown', 'M', 'D08', 'Human Resources Manager', 5, 5800.40);
+insert into employee values('STFF117', 'NULL', 'Grace Johnson', 'F', 'D05', 'IT Specialist', 2, 3600.20);
+insert into employee values('STFF118', 'NULL', 'James Williams', 'M', 'D03', 'Public Relations Specialist', 3, 4500.30);
+insert into employee values('STFF119', 'NULL', 'Sophia Garcia', 'F', 'D04', 'Data Analyst', 2, 3900.30);
+insert into employee values('STFF120', 'NULL', 'Ethan Kim', 'M', 'D08', 'Finance Analyst', 3, 4400.40);
+insert into employee values('STFF121', 'NULL', 'Aria Wilson', 'F', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF122', 'NULL', 'Oliver Jones', 'M', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF123', 'NULL', 'Mia Johnson', 'F', 'D07', 'Marketing Coordinator', 3, 4200.50);
+insert into employee values('STFF124', 'NULL', 'Lucas Lee', 'M', 'D10', 'Investment Analyst', 4, 4800.60);
+insert into employee values('STFF125', 'NULL', 'Abigail Smith', 'F', 'D10', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF126', 'NULL', 'Henry Thompson', 'M', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF127', 'NULL', 'Ella Hernandez', 'F', 'D08', 'Finance Analyst', 4, 4900.50);
+insert into employee values('STFF128', 'NULL', 'Alexander Brown', 'M', 'D07', 'Marketing Coordinator', 2, 3600.20);
+insert into employee values('STFF129', 'NULL', 'Grace Davis', 'F', 'D10', 'Investment Analyst', 4, 4700.60);
+insert into employee values('STFF130', 'NULL', 'Daniel Martinez', 'M', 'D06', 'Operations Manager', 6, 6000.40);
+insert into employee values('STFF131', 'NULL', 'Sophia Adams', 'F', 'D03', 'Software Developer', 3, 4500.50);
+insert into employee values('STFF132', 'NULL', 'William Lee', 'M', 'D02', 'Public Relations Specialist', 3, 4200.50);
+insert into employee values('STFF133', 'NULL', 'Olivia Martin', 'F', 'D09', 'Accounting Analyst', 4, 4800.60);
+insert into employee values('STFF134', 'NULL', 'Noah Kim', 'M', 'D04', 'Data Analyst', 2, 3900.30);
+insert into employee values('STFF135', 'NULL', 'Emma Thompson', 'F', 'D06', 'Supply Chain Coordinator', 3, 4200.50);
+insert into employee values('STFF136', 'NULL', 'Michael Jackson', 'M', 'D05', 'IT Specialist', 4, 4900.60);
+insert into employee values('STFF137', 'NULL', 'Sophia Lee', 'F', 'D07', 'Marketing Coordinator', 2, 3600.20);
+insert into employee values('STFF138', 'NULL', 'Daniel Hernandez', 'M', 'D07', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF139', 'NULL', 'Madison Johnson', 'F', 'D09', 'Accounting Analyst', 4, 4800.60);
+insert into employee values('STFF140', 'NULL', 'Ethan Kim', 'M', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF141', 'NULL', 'Ava Adams', 'F', 'D10', 'Investment Analyst', 4, 4700.60);
+insert into employee values('STFF142', 'NULL', 'Liam Wilson', 'M', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF143', 'NULL', 'Olivia Martinez', 'F', 'D07', 'Marketing Coordinator', 3, 4200.50);
+insert into employee values('STFF144', 'NULL', 'Noah Smith', 'M', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF145', 'NULL', 'Aria Johnson', 'F', 'D10', 'Public Relations Specialist', 2, 3600.20);
+insert into employee values('STFF146', 'NULL', 'James Davis', 'M', 'D04', 'Data Analyst', 2, 3900.30);
+insert into employee values('STFF147', 'NULL', 'Sophia Martin', 'F', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF148', 'NULL', 'Alexander Thompson', 'M', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF149', 'NULL', 'Grace Wilson', 'F', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF150', 'NULL', 'Henry Hernandez', 'M', 'D10', 'Investment Analyst', 4, 4800.60);
+insert into employee values('STFF151', 'NULL', 'Abigail Lee', 'F', 'D10', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF152', 'NULL', 'William Jackson', 'M', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF153', 'NULL', 'Emily Adams', 'F', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF154', 'NULL', 'Benjamin Kim', 'M', 'D07', 'Marketing Coordinator', 2, 3600.20);
+insert into employee values('STFF155', 'NULL', 'Sophia Hernandez', 'F', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF156', 'NULL', 'Joseph Davis', 'M', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF157', 'NULL', 'Mia Martin', 'F', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF158', 'NULL', 'Daniel Thompson', 'M', 'D10', 'Investment Analyst', 4, 4800.60);
+insert into employee values('STFF159', 'NULL', 'Ava Wilson', 'F', 'D04', 'Data Analyst', 2, 3900.30);
+insert into employee values('STFF160', 'NULL', 'Oliver Lee', 'M', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF161', 'NULL', 'Charlotte Johnson', 'F', 'D10', 'Public Relations Specialist', 2, 3600.20);
+insert into employee values('STFF162', 'NULL', 'Henry Smith', 'M', 'D07', 'Marketing Coordinator', 3, 4200.50);
+insert into employee values('STFF163', 'NULL', 'Amelia Adams', 'F', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF164', 'NULL', 'Lucas Kim', 'M', 'D10', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF165', 'NULL', 'Ella Thompson', 'F', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF166', 'NULL', 'Jack Davis', 'M', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF167', 'NULL', 'Harper Hernandez', 'F', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF168', 'NULL', 'William Martin', 'M', 'D10', 'Investment Analyst', 4, 4800.60);
+insert into employee values('STFF169', 'NULL', 'Sofia Wilson', 'F', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF170', 'NULL', 'James Thompson', 'M', 'D07', 'Marketing Coordinator', 2, 3600.20);
+insert into employee values('STFF171', 'NULL', 'Grace Lee', 'F', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF172', 'NULL', 'Alexander Adams', 'M', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF173', 'NULL', 'Aria Kim', 'F', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF174', 'NULL', 'Logan Thompson', 'M', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF175', 'NULL', 'Zoe Davis', 'F', 'D10', 'Investment Analyst', 4, 4800.60);
+insert into employee values('STFF176', 'NULL', 'Carter Martin', 'M', 'D04', 'Data Analyst', 2, 3900.30);
+insert into employee values('STFF177', 'NULL', 'Savannah Hernandez', 'F', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF178', 'NULL', 'Henry Smith', 'M', 'D10', 'Public Relations Specialist', 2, 3600.20);
+insert into employee values('STFF179', 'NULL', 'Grace Adams', 'F', 'D07', 'Marketing Coordinator', 3, 4200.50);
+insert into employee values('STFF180', 'NULL', 'Samuel Kim', 'M', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF181', 'NULL', 'Victoria Thompson', 'F', 'D10', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF182', 'NULL', 'David Davis', 'M', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF183', 'NULL', 'Emma Hernandez', 'F', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF184', 'NULL', 'Ethan Martin', 'M', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF185', 'NULL', 'Avery Lee', 'F', 'D10', 'Investment Analyst', 4, 4800.60);
+insert into employee values('STFF186', 'NULL', 'Madelyn Thompson', 'F', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF187', 'NULL', 'Joseph Wilson', 'M', 'D07', 'Marketing Coordinator', 2, 3600.20);
+insert into employee values('STFF188', 'NULL', 'Scarlett Adams', 'F', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF189', 'NULL', 'Jackson Kim', 'M', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF190', 'NULL', 'Chloe Hernandez', 'F', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF191', 'NULL', 'William Smith', 'M', 'D10', 'Public Relations Specialist', 2, 3600.20);
+insert into employee values('STFF192', 'NULL', 'Grace Adams', 'F', 'D07', 'Marketing Coordinator', 3, 4200.50);
+insert into employee values('STFF193', 'NULL', 'Samantha Kim', 'F', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF194', 'NULL', 'James Thompson', 'M', 'D10', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF195', 'NULL', 'Liam Davis', 'M', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF196', 'NULL', 'Olivia Hernandez', 'F', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF197', 'NULL', 'Lucas Martin', 'M', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF198', 'NULL', 'Amelia Lee', 'F', 'D10', 'Investment Analyst', 4, 4800.60);
+insert into employee values('STFF199', 'NULL', 'Harper Thompson', 'F', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF200', 'NULL', 'Henry Davis', 'M', 'D07', 'Marketing Coordinator', 2, 3600.20);
+insert into employee values('STFF201', 'NULL', 'Evelyn Adams', 'F', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF202', 'NULL', 'Michael Kim', 'M', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF203', 'NULL', 'Elizabeth Hernandez', 'F', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF204', 'NULL', 'Daniel Smith', 'M', 'D10', 'Public Relations Specialist', 2, 3600.20);
+insert into employee values('STFF205', 'NULL', 'Sophia Adams', 'F', 'D07', 'Marketing Coordinator', 3, 4200.50);
+insert into employee values('STFF206', 'NULL', 'Benjamin Kim', 'M', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF207', 'NULL', 'Natalie Thompson', 'F', 'D10', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF208', 'NULL', 'Alexander Davis', 'M', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF209', 'NULL', 'Grace Lee', 'F', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF210', 'NULL', 'James Adams', 'M', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF211', 'NULL', 'Olivia Smith', 'F', 'D10', 'Public Relations Specialist', 2, 3600.20);
+insert into employee values('STFF212', 'NULL', 'Daniel Martin', 'M', 'D07', 'Marketing Coordinator', 3, 4200.50);
+insert into employee values('STFF213', 'NULL', 'Sofia Kim', 'F', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF214', 'NULL', 'Lucas Thompson', 'M', 'D10', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF215', 'NULL', 'Ava Davis', 'F', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF216', 'NULL', 'Liam Adams', 'M', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF217', 'NULL', 'Emma Lee', 'F', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF218', 'NULL', 'Noah Hernandez', 'M', 'D10', 'Public Relations Specialist', 2, 3600.20);
+insert into employee values('STFF219', 'NULL', 'Mia Smith', 'F', 'D07', 'Marketing Coordinator', 3, 4200.50);
+insert into employee values('STFF220', 'NULL', 'Benjamin Kim', 'M', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF221', 'NULL', 'Charlotte Thompson', 'F', 'D10', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF222', 'NULL', 'Henry Davis', 'M', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF223', 'NULL', 'Harper Hernandez', 'F', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF224', 'NULL', 'William Adams', 'M', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF225', 'NULL', 'Evelyn Lee', 'F', 'D10', 'Public Relations Specialist', 2, 3600.20);
+insert into employee values('STFF226', 'NULL', 'Sebastian Hernandez', 'M', 'D07', 'Marketing Coordinator', 3, 4200.50);
+insert into employee values('STFF227', 'NULL', 'Avery Smith', 'F', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF228', 'NULL', 'Jackson Thompson', 'M', 'D10', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF229', 'NULL', 'Amelia Davis', 'F', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF230', 'NULL', 'Lucas Adams', 'M', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF231', 'NULL', 'Sophia Lee', 'F', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF232', 'NULL', 'Liam Smith', 'M', 'D10', 'Public Relations Specialist', 2, 3600.20);
+insert into employee values('STFF233', 'NULL', 'Harper Hernandez', 'F', 'D07', 'Marketing Coordinator', 3, 4200.50);
+insert into employee values('STFF234', 'NULL', 'Oliver Thompson', 'M', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF235', 'NULL', 'Emma Davis', 'F', 'D02', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF236', 'NULL', 'Henry Adams', 'M', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF237', 'NULL', 'Elizabeth Lee', 'F', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF238', 'NULL', 'Daniel Smith', 'M', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF239', 'NULL', 'Sofia Hernandez', 'F', 'D10', 'Public Relations Specialist', 2, 3600.20);
+insert into employee values('STFF240', 'NULL', 'Benjamin Thompson', 'M', 'D07', 'Marketing Coordinator', 3, 4200.50);
+insert into employee values('STFF241', 'NULL', 'Madelyn Davis', 'F', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF242', 'NULL', 'Liam Adams', 'M', 'D10', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF243', 'NULL', 'Ava Lee', 'F', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF244', 'NULL', 'Lucas Smith', 'M', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF245', 'NULL', 'Grace Hernandez', 'F', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF246', 'NULL', 'Ethan Thompson', 'M', 'D01', 'Public Relations Specialist', 2, 3600.20);
+insert into employee values('STFF247', 'NULL', 'Olivia Davis', 'F', 'D07', 'Marketing Coordinator', 3, 4200.50);
+insert into employee values('STFF248', 'NULL', 'Alexander Adams', 'M', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF249', 'NULL', 'Charlotte Lee', 'F', 'D02', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF250', 'NULL', 'William Smith', 'M', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF251', 'NULL', 'Scarlett Hernandez', 'F', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF252', 'NULL', 'Michael Thompson', 'M', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF253', 'NULL', 'Abigail Davis', 'F', 'D01', 'Public Relations Specialist', 2, 3600.20);
+insert into employee values('STFF254', 'NULL', 'James Adams', 'M', 'D07', 'Marketing Coordinator', 3, 4200.50);
+insert into employee values('STFF255', 'NULL', 'Sophia Smith', 'F', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF256', 'NULL', 'Daniel Hernandez', 'M', 'D02', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF257', 'NULL', 'Nathan Thompson', 'M', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF258', 'NULL', 'Grace Davis', 'F', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF259', 'NULL', 'David Smith', 'M', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF260', 'NULL', 'Madeline Adams', 'F', 'D01', 'Public Relations Specialist', 2, 3600.20);
+insert into employee values('STFF261', 'NULL', 'Sophia Hernandez', 'F', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF262', 'NULL', 'Joseph Davis', 'M', 'D02', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF263', 'NULL', 'David Smith', 'M', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF264', 'NULL', 'Olivia Thompson', 'F', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF265', 'NULL', 'Michael Adams', 'M', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF266', 'NULL', 'Grace Davis', 'F', 'D10', 'Public Relations Specialist', 2, 3600.20);
+insert into employee values('STFF267', 'NULL', 'James Hernandez', 'M', 'D07', 'Marketing Coordinator', 3, 4200.50);
+insert into employee values('STFF268', 'NULL', 'Emily Thompson', 'F', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF269', 'NULL', 'Daniel Smith', 'M', 'D02', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF270', 'NULL', 'Alexander Adams', 'M', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF271', 'NULL', 'Emma Hernandez', 'F', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF272', 'NULL', 'Liam Davis', 'M', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF273', 'NULL', 'Charlotte Thompson', 'F', 'D01', 'Public Relations Specialist', 2, 3600.20);
+insert into employee values('STFF274', 'NULL', 'Jackson Adams', 'M', 'D07', 'Marketing Coordinator', 3, 4200.50);
+insert into employee values('STFF275', 'NULL', 'Olivia Smith', 'F', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF276', 'NULL', 'William Davis', 'M', 'D02', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF277', 'NULL', 'Sophia Hernandez', 'F', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF278', 'NULL', 'Jacob Thompson', 'M', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF279', 'NULL', 'Emily Adams', 'F', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF280', 'NULL', 'Ethan Davis', 'M', 'D01', 'Public Relations Specialist', 2, 3600.20);
+insert into employee values('STFF281', 'NULL', 'Abigail Hernandez', 'F', 'D07', 'Marketing Coordinator', 3, 4200.50);
+insert into employee values('STFF282', 'NULL', 'Benjamin Thompson', 'M', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF283', 'NULL', 'Elizabeth Adams', 'F', 'D02', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF284', 'NULL', 'Michael Davis', 'M', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF285', 'NULL', 'Sophia Hernandez', 'F', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF286', 'NULL', 'Daniel Smith', 'M', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF287', 'NULL', 'Grace Thompson', 'F', 'D01', 'Public Relations Specialist', 2, 3600.20);
+insert into employee values('STFF288', 'NULL', 'Jacob Adams', 'M', 'D07', 'Marketing Coordinator', 3, 4200.50);
+insert into employee values('STFF289', 'NULL', 'Olivia Davis', 'F', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF290', 'NULL', 'William Smith', 'M', 'D10', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF291', 'NULL', 'Emma Thompson', 'F', 'D06', 'Operations Manager', 5, 5600.50);
+insert into employee values('STFF292', 'NULL', 'Liam Hernandez', 'M', 'D09', 'Accounting Analyst', 4, 4700.60);
+insert into employee values('STFF293', 'NULL', 'Charlotte Adams', 'F', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF294', 'NULL', 'Jackson Davis', 'M', 'D10', 'Public Relations Specialist', 2, 3600.20);
+insert into employee values('STFF295', 'NULL', 'Olivia Smith', 'F', 'D07', 'Marketing Coordinator', 3, 4200.50);
+insert into employee values('STFF296', 'NULL', 'Ethan Thompson', 'M', 'D05', 'IT Specialist', 3, 4400.40);
+insert into employee values('STFF297', 'NULL', 'Sophia Hernandez', 'F', 'D02', 'Human Resources Manager', 6, 6200.70);
+insert into employee values('STFF298', 'NULL', 'Daniel Smith', 'M', 'D08', 'Finance Analyst', 3, 4500.50);
+insert into employee values('STFF299', 'NULL', 'Grace Thompson', 'F', 'D10', 'Public Relations Specialist', 2, 3600.20);
+insert into employee values('STFF300', 'NULL', 'Jacob Adams', 'M', 'D07', 'Marketing Coordinator', 3, 4200.50);
+
+/*test*/
+insert into test values ('TA1001','STFF012','03-03-2023', '06-05-2023');
+insert into test values ('TA2002','STFF012','25-02-2023', '31-08-2023');
+insert into test values ('TA3003','STFF012','10-02-2023', '15-09-2023');
+insert into test values ('TA4004','STFF012','03-04-2023', '12-12-2023');
+insert into test values ('TA5005','STFF012','01-01-2023', '13-11-2023');
+insert into test values ('TA6006','STFF012','15-03-2023', '11-05-2023');
+insert into test values ('TA7007','STFF012','18-01-2023', '06-06-2023');
+insert into test values ('TA8008','STFF012','28-02-2023', '20-08-2023');
+insert into test values ('TA9009','STFF012','26-01-2023', '09-09-2023');
+insert into test values ('TB1010','STFF020','10-03-2023', '30-12-2023');
+insert into test values ('TB2011','STFF020','03-07-2022', '28-07-2023');
+insert into test values ('TB3012','STFF020','14-03-2023', '12-10-2023');
+insert into test values ('TB4013','STFF020','12-02-2023', '22-09-2023');
+insert into test values ('TB5014','STFF020','22-12-2022', '28-07-2023');
+insert into test values ('TB6015','STFF020','22-05-2022', '11-06-2023');
+insert into test values ('TB7016','STFF020','04-02-2023', '28-05-2023');
+insert into test values ('TB8017','STFF020','04-08-2022', '19-09-2023');
+insert into test values ('TB9018','STFF020','20-12-2022', '12-06-2023');
+insert into test values ('TC1019','STFF025','10-02-2023', '01-11-2023');
+insert into test values ('TC2020','STFF025','22-11-2022', '11-09-2023');
+insert into test values ('TC3021','STFF025','21-12-2022', '05-11-2023');
+insert into test values ('TC4022','STFF025','18-07-2022', '07-08-2023');
+insert into test values ('TC5023','STFF025','01-06-2022', '22-07-2023');
+insert into test values ('TC6024','STFF025','16-07-2022', '05-10-2023');
+insert into test values ('TC7025','STFF025','04-06-2022', '29-10-2023');
+insert into test values ('TC8026','STFF025','27-02-2023', '31-07-2023');
+insert into test values ('TC9027','STFF025','07-01-2023', '28-08-2023');
+insert into test values ('TD1028','STFF036','08-08-2022', '09-12-2023');
+insert into test values ('TD2029','STFF036','14-04-2022', '23-09-2023');
+insert into test values ('TD3030','STFF036','01-12-2022', '02-11-2023');
+insert into test values ('TD4031','STFF036','03-02-2023', '30-07-2023');
+insert into test values ('TD5032','STFF036','05-11-2022', '04-05-2023');
+insert into test values ('TD6033','STFF036','26-03-2023', '09-09-2023');
+insert into test values ('TD7034','STFF036','21-06-2022', '26-09-2023');
+insert into test values ('TD8035','STFF036','16-02-2023', '17-12-2023');
+insert into test values ('TD9036','STFF036','12-11-2022', '17-07-2023');
+insert into test values ('TE1037','STFF048','22-02-2023', '12-11-2023');
+insert into test values ('TE2038','STFF048','11-03-2023', '04-09-2023');
+insert into test values ('TE3039','STFF048','29-01-2023', '09-09-2023');
+insert into test values ('TE4040','STFF048','14-12-2022', '09-12-2023');
+insert into test values ('TE5041','STFF048','04-11-2022', '22-07-2023');
+insert into test values ('TE6042','STFF048','23-02-2023', '20-09-2023');
+insert into test values ('TE7043','STFF048','18-04-2022', '10-09-2023');
+insert into test values ('TE8044','STFF048','13-11-2022', '22-12-2023');
+insert into test values ('TE9045','STFF048','31-10-2022', '14-12-2023');
+insert into test values ('TF1046','STFF048','07-01-2023', '04-05-2023');
+insert into test values ('TF2047','STFF053','17-03-2023', '31-05-2023');
+insert into test values ('TF3048','STFF053','13-05-2022', '15-06-2023');
+insert into test values ('TF4049','STFF053','28-02-2023', '19-05-2023');
+insert into test values ('TF5050','STFF053','06-07-2022', '31-10-2023');
+insert into test values ('TF6051','STFF053','31-07-2022', '03-06-2023');
+insert into test values ('TF7052','STFF053','11-11-2022', '20-11-2023');
+insert into test values ('TF8053','STFF053','24-09-2022', '18-08-2023');
+insert into test values ('TF9054','STFF053','03-03-2023', '14-08-2023');
+insert into test values ('TG1055','STFF053','26-12-2022', '14-06-2023');
+insert into test values ('TG2056','STFF053','20-09-2022', '16-10-2023');
+insert into test values ('TG3057','STFF063','10-06-2022', '25-07-2023');
+insert into test values ('TG4058','STFF063','11-11-2022', '07-05-2023');
+insert into test values ('TG5059','STFF063','03-10-2022', '10-09-2023');
+insert into test values ('TG6060','STFF063','12-07-2022', '05-10-2023');
+insert into test values ('TG7061','STFF063','03-09-2022', '14-09-2023');
+insert into test values ('TG8062','STFF063','01-05-2022', '20-12-2023');
+insert into test values ('TG9063','STFF063','26-08-2022', '18-10-2023');
+insert into test values ('TH1064','STFF063','30-12-2022', '10-05-2023');
+insert into test values ('TH2065','STFF063','09-06-2022', '04-05-2023');
+insert into test values ('TH3066','STFF063','29-05-2022', '01-06-2023');
+insert into test values ('TH4067','STFF079','26-07-2022', '03-08-2023');
+insert into test values ('TH5068','STFF079','05-05-2022', '22-07-2023');
+insert into test values ('TH6069','STFF079','11-07-2022', '22-06-2023');
+insert into test values ('TH7070','STFF079','29-04-2022', '07-07-2023');
+insert into test values ('TH8071','STFF079','25-02-2023', '25-07-2023');
+insert into test values ('TH9072','STFF079','21-02-2023', '14-10-2023');
+insert into test values ('TI1073','STFF079','07-11-2022', '02-08-2023');
+insert into test values ('TI2074','STFF079','09-08-2022', '27-08-2023');
+insert into test values ('TI3075','STFF079','05-10-2022', '01-11-2023');
+insert into test values ('TI4076','STFF079','05-12-2022', '21-11-2023');
+insert into test values ('TI5077','STFF084','19-07-2022', '22-05-2023');
+insert into test values ('TI6078','STFF084','13-05-2022', '02-12-2023');
+insert into test values ('TI7079','STFF084','19-09-2022', '22-08-2023');
+insert into test values ('TI8080','STFF084','23-01-2023', '26-08-2023');
+insert into test values ('TI9081','STFF084','25-05-2022', '31-10-2023');
+insert into test values ('TJ1082','STFF084','10-12-2022', '29-06-2023');
+insert into test values ('TJ2083','STFF084','04-09-2022', '11-07-2023');
+insert into test values ('TJ3084','STFF084','27-06-2022', '24-07-2023');
+insert into test values ('TJ4085','STFF084','19-02-2023', '20-11-2023');
+insert into test values ('TJ5086','STFF084','06-02-2023', '04-07-2023');
+insert into test values ('TJ6087','STFF084','05-05-2022', '14-09-2023');
+insert into test values ('TJ7088','STFF086','22-04-2022', '14-06-2023');
+insert into test values ('TJ8089','STFF086','07-12-2022', '16-11-2023');
+insert into test values ('TJ9090','STFF086','20-03-2023', '30-06-2023');
+insert into test values ('TK1091','STFF086','22-07-2022', '27-07-2023');
+insert into test values ('TK2092','STFF086','09-08-2022', '26-06-2023');
+insert into test values ('TK3093','STFF086','17-09-2022', '29-12-2023');
+insert into test values ('TK4094','STFF086','07-08-2022', '02-06-2023');
+insert into test values ('TK5095','STFF086','26-10-2022', '09-08-2023');
+insert into test values ('TK6096','STFF086','05-02-2023', '20-07-2023');
+insert into test values ('TK7097','STFF086','10-10-2022', '12-06-2023');
+insert into test values ('TK8098','STFF086','05-01-2023', '02-06-2023');
+insert into test values ('TK9099','STFF086','18-12-2022', '23-08-2023');
+insert into test values ('TL1100','STFF086','18-07-2022', '10-10-2023');
+
+/*agent*/
+insert into agent values('AG0001','Lim Tan Han','Project Agent',1001,2);
+insert into agent values('AG0002','Wong Fong Fong','Project Agent',1002,2);
+insert into agent values('AG0003','Wong Wei Hong','Project Agent',1003,2);
+insert into agent values('AG0004','Tan Ah Kao','Project Agent',1004,3);
+insert into agent values('AG0005','Ng Kah Guan','Project Agent',1005,6);
+insert into agent values('AG0006','Sophia Chen Xin','Project Agent',1006,4);
+insert into agent values('AG0007','Kee Tong Long','Project Agent',1007,2);
+insert into agent values('AG0008','Roy Chow Li Rong','Project Agent',1008,3);
+insert into agent values('AG0009','Grace Lee Wen Long','Project Agent',1009,5);
+insert into agent values('AG0010','Hou Yi Shun','Project Agent',1010,2);
+
+/*recruitment_job_details*/
+insert into recruitment_job_details values('JD0001','STFF001','SL','Sales Consultant','09-Mar-2022',2,'Bachelor of Business in Marketing');
+insert into recruitment_job_details values('JD0002','STFF002','FK','Finance Director','11-Apr-2022',4,'Bachelor of Finance and Investment');
+insert into recruitment_job_details values('JD0003','STFF003','LG','Records Clerk','20-Apr-2022',3,'Bachelor of Laws');
+insert into recruitment_job_details values('JD0004','STFF004','FK','Finance clerk','01-May-2022',3,'Bachelor of Finance and Investment');
+insert into recruitment_job_details values('JD0005','STFF005','SL','Collection Agent','24-May-2022',2,'Bachelor of Business in Marketing');
+insert into recruitment_job_details values('JD0006','STFF006','LG','Legal Secretary','05-Jun-2023',3,'Bachelor of Laws');
+insert into recruitment_job_details values('JD0007','STFF007','MK','Marketing Coordinator','25-Jul-2023',2,'Bachelor of Business in Marketing');
+insert into recruitment_job_details values('JD0008','STFF008','SL','Sales Representative','01-Aug-2023',2,'Bachelor of Business in Marketing');
+insert into recruitment_job_details values('JD0009','STFF009','FC','Financial Analyst','15-Aug-2023',4,'Bachelor of Finance and Investment');
+insert into recruitment_job_details values('JD0010','STFF010','MK','Marketing Assistant','01-Oct-2023',2,'Bachelor of Business in Marketing');
+insert into recruitment_job_details values('JD0011','STFF011','OP','Operations Supervisor','20-Jan-2022',4,'Bachelor of Science in Logistics Management');
+insert into recruitment_job_details values('JD0012','STFF012','MA','Marketing Coordinator','15-Mar-2022',2,'Bachelor of Science in Marketing');
+insert into recruitment_job_details values('JD0013','STFF013','FD','Finance Manager','10-Feb-2022',5,'Master of Business Administration in Finance');
+insert into recruitment_job_details values('JD0014','STFF014','PR','Public Relations Officer','05-May-2022',3,'Bachelor of Arts in Mass Communication');
+insert into recruitment_job_details values('JD0015','STFF015','SC','Security Officer','25-Jun-2022',2,'High School Diploma');
+insert into recruitment_job_details values('JD0016','STFF016','PA','Purchasing Agent','18-Jul-2022',3,'Bachelor of Science in Supply Chain Management');
+insert into recruitment_job_details values('JD0017','STFF017','AD','Airport Duty Manager','30-Apr-2022',5,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0018','STFF018','CC','Cabin Crew','20-Feb-2022',1,'High School Diploma');
+insert into recruitment_job_details values('JD0019', 'STFF019', 'CC', 'Cabin Crew', '20-Feb-2022', 1, 'High School Diploma');
+insert into recruitment_job_details values('JD0020','STFF020','FA','Flight Attendant','12-May-2022',3,'Bachelor of Arts in Tourism and Hospitality Management');
+insert into recruitment_job_details values('JD0021','STFF021','MN','Maintenance Technician','10-Mar-2022',5,'Diploma in Aircraft Maintenance Engineering');
+insert into recruitment_job_details values('JD0022','STFF022','HR','HR Coordinator','05-Feb-2022',2,'Bachelor of Business Administration in Human Resource Management');
+insert into recruitment_job_details values('JD0023','STFF023','OP','Operations Manager','20-Jan-2022',6,'Master of Business Administration in Operations Management');
+insert into recruitment_job_details values('JD0024','STFF024','MA','Marketing Manager','15-Mar-2022',5,'Master of Science in Marketing');
+insert into recruitment_job_details values('JD0025','STFF025','FD','Finance Analyst','10-Feb-2022',3,'Bachelor of Commerce in Accounting');
+insert into recruitment_job_details values('JD0026','STFF026','PR','Public Relations Manager','05-May-2022',4,'Bachelor of Arts in Public Relations');
+insert into recruitment_job_details values('JD0027','STFF027','SC','Supply Chain Analyst','25-Jun-2022',2,'Bachelor of Science in Supply Chain Management');
+insert into recruitment_job_details values('JD0028','STFF028','AD','Airport Operations Manager','18-Jul-2022',6,'Master of Science in Aviation Management');
+insert into recruitment_job_details values('JD0029','STFF029','EN','Aircraft Maintenance Engineer','30-Apr-2022',7,'Bachelor of Engineering in Aerospace Engineering');
+insert into recruitment_job_details values('JD0030','STFF030','TC','Reservation Agent','12-May-2022',1,'Diploma in Travel and Tourism Management');
+insert into recruitment_job_details values('JD0031','STFF031','IT','IT Manager','20-Feb-2022',5,'Master of Science in Information Technology');
+insert into recruitment_job_details values('JD0032','STFF032','GR','Baggage Handler','05-Jan-2022',2,'High School Diploma');
+insert into recruitment_job_details values('JD0033','STFF033','CC','In-flight Service Manager','15-Apr-2022',6,'Bachelor of Arts in Hospitality and Tourism Management');
+insert into recruitment_job_details values('JD0034','STFF034','PL','First Officer','10-Mar-2022',4,'Bachelor of Science in Aeronautical Science');
+insert into recruitment_job_details values('JD0035','STFF035','OP','Operations Coordinator','25-Apr-2022',2,'Bachelor of Business Administration in Operations Management');
+insert into recruitment_job_details values('JD0036','STFF036','PL','Flight Instructor','10-Dec-2022',3,'Certified Flight Instructor');
+insert into recruitment_job_details values('JD0037','STFF037','SC','Cargo Operations Manager','20-Mar-2022',5,'Master of Science in Supply Chain Management');
+insert into recruitment_job_details values('JD0038','STFF038','GR','Ground Operations Agent','10-Feb-2022',1,'High School Diploma');
+insert into recruitment_job_details values('JD0039','STFF039','TM','Ticketing Agent','05-May-2022',2,'Diploma in Travel and Tourism Management');
+insert into recruitment_job_details values('JD0040','STFF040','CC','Customer Service Representative','18-Jul-2022',3,'Bachelor of Arts in Communication Studies');
+insert into recruitment_job_details values('JD0041','STFF041','HR','HR Assistant','12-Jun-2022',1,'Bachelor of Business Administration in Human Resource Management');
+insert into recruitment_job_details values('JD0042','STFF042','OP','Operations Analyst','30-Apr-2022',3,'Bachelor of Science in Operations Research');
+insert into recruitment_job_details values('JD0043','STFF043','IT','IT Support Specialist','15-Mar-2022',2,'Bachelor of Science in Computer Science');
+insert into recruitment_job_details values('JD0044','STFF044','PR','Public Relations Coordinator','05-Jan-2022',1,'Bachelor of Arts in Public Relations');
+insert into recruitment_job_details values('JD0045','STFF045','TM','Travel Consultant','25-Apr-2022',2,'Diploma in Travel and Tourism Management');
+insert into recruitment_job_details values('JD0046','STFF046','CC','In-flight Catering Manager','20-Feb-2022',4,'Bachelor of Arts in Hospitality and Tourism Management');
+insert into recruitment_job_details values('JD0047','STFF047','PL','Chief Pilot','10-Mar-2022',10,'Master of Science in Aeronautical Science');
+insert into recruitment_job_details values('JD0048','STFF048','FA','Senior Cabin Crew','15-Apr-2022',5,'Bachelor of Arts in Tourism and Hospitality Management');
+insert into recruitment_job_details values('JD0049','STFF049','SC','Logistics Manager','12-May-2022',6,'Master of Science in Logistics and Supply Chain Management');
+insert into recruitment_job_details values('JD0050','STFF050','GR','Ramp Agent','05-Jun-2022',1,'High School Diploma');
+insert into recruitment_job_details values('JD0051','STFF051','OP','Operations Planner','20-Mar-2022',3,'Bachelor of Science in Operations Management');
+insert into recruitment_job_details values('JD0052','STFF052','CC','Customer Service Supervisor','25-Apr-2022',4,'Bachelor of Business Administration in Management');
+insert into recruitment_job_details values('JD0053','STFF053','GR','Aircraft Maintenance Technician','20-Oct-2022',5,'Aviation Maintenance Technician Certificate');
+insert into recruitment_job_details values('JD0054','STFF054','OP','Flight Dispatcher','15-Jul-2022',2,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0055','STFF055','SC','Supply Chain Analyst','10-Aug-2022',3,'Master of Business Administration in Supply Chain Management');
+insert into recruitment_job_details values('JD0056','STFF056','TM','Reservation Agent','05-Sep-2022',1,'Diploma in Travel and Tourism Management');
+insert into recruitment_job_details values('JD0057','STFF057','FA','Flight Attendant','20-Jul-2022',2,'Bachelor of Arts in Tourism and Hospitality Management');
+insert into recruitment_job_details values('JD0058','STFF058','PL','First Officer','12-Oct-2022',5,'Bachelor of Science in Aviation');
+insert into recruitment_job_details values('JD0059','STFF059','GR','Baggage Handler','25-Sep-2022',1,'High School Diploma');
+insert into recruitment_job_details values('JD0060','STFF060','OP','Aircraft Maintenance Technician','20-Nov-2022',3,'Associate Degree in Aircraft Maintenance');
+insert into recruitment_job_details values('JD0061','STFF061','IT','Network Administrator','15-Dec-2022',4,'Bachelor of Science in Computer Engineering');
+insert into recruitment_job_details values('JD0062','STFF062','CC','Call Center Agent','10-Jan-2023',1,'Diploma in Customer Service');
+insert into recruitment_job_details values('JD0063','STFF063','HR','HR Coordinator','25-Nov-2022',2,'Bachelor of Business Administration in Human Resource Management');
+insert into recruitment_job_details values('JD0064','STFF064','PL','Flight Instructor','20-Oct-2022',7,'Certified Flight Instructor');
+insert into recruitment_job_details values('JD0065','STFF065','FA','Cabin Crew','15-Sep-2022',1,'Diploma in Aviation Services');
+insert into recruitment_job_details values('JD0066','STFF066','SC','Procurement Specialist','10-Aug-2022',3,'Bachelor of Science in Supply Chain Management');
+insert into recruitment_job_details values('JD0067','STFF067','GR','Aircraft Cleaner','25-Sep-2022',6,'High School Diploma');
+insert into recruitment_job_details values('JD0068','STFF068','OP','Flight Operations Analyst','20-Nov-2022','4','Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0069','STFF069','TM','Travel Coordinator','12-Oct-2022',2,'Diploma in Travel and Tourism Management');
+insert into recruitment_job_details values('JD0070','STFF070','CC','Customer Service Team Lead','05-Dec-2022',5,'Bachelor of Arts in Business Administration');
+insert into recruitment_job_details values('JD0071','STFF071','CC','Airline Operations Coordinator','15-Nov-2022',2,'Bachelor of Science in Aviation Operations');
+insert into recruitment_job_details values('JD0072','STFF072','FA','Flight Attendant','15-Sep-2022',2,'Bachelor of Arts in Tourism and Hospitality Management');
+insert into recruitment_job_details values('JD0073','STFF073','OP','Operations Manager','10-Oct-2022',5,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0074','STFF074','SC','Supply Chain Coordinator','05-Nov-2022',3,'Bachelor of Business Administration in Supply Chain Management');
+insert into recruitment_job_details values('JD0075','STFF075','PL','Pilot Trainer','20-Dec-2022',7,'Certified Flight Instructor');
+insert into recruitment_job_details values('JD0076','STFF076','TM','Ticketing Agent','12-Nov-2022',1,'Diploma in Travel and Tourism Management');
+insert into recruitment_job_details values('JD0077','STFF077','GR','Ground Services Supervisor','25-Oct-2022',4,'Bachelor of Science in Aviation Operations');
+insert into recruitment_job_details values('JD0078','STFF078','IT','IT Manager','20-Sep-2022',6,'Bachelor of Science in Computer Science');
+insert into recruitment_job_details values('JD0079','STFF079','CC','Customer Service Representative','15-Nov-2022',2,'Bachelor of Arts in Communication Studies');
+insert into recruitment_job_details values('JD0080','STFF080','HR','HR Manager','10-Dec-2022',5,'Master of Business Administration in Human Resource Management');
+insert into recruitment_job_details values('JD0081','STFF081','PL','First Officer','25-Sep-2022',4,'Bachelor of Science in Aviation');
+insert into recruitment_job_details values('JD0082','STFF082','FA','Cabin Crew','20-Oct-2022',1,'Diploma in Aviation Services');
+insert into recruitment_job_details values('JD0083','STFF083','SC','Logistics Coordinator','15-Nov-2022',3,'Bachelor of Science in Logistics and Supply Chain Management');
+insert into recruitment_job_details values('JD0084','STFF084','GR','Ramp Agent','10-Sep-2022',6,'High School Diploma');
+insert into recruitment_job_details values('JD0085','STFF085','OP','Flight Operations Analyst','05-Nov-2022',4,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0086','STFF086','TM','Travel Consultant','20-Dec-2022','2','Diploma in Travel and Tourism Management');
+insert into recruitment_job_details values('JD0087','STFF087','CC','Call Center Supervisor','12-Nov-2022',5,'Bachelor of Arts in Business Administration');
+insert into recruitment_job_details values('JD0088','STFF088','PL','Captain','25-Oct-2022',8,'Airline Transport Pilot License');
+insert into recruitment_job_details values('JD0089','STFF089','TM','Reservation Supervisor','25-Sep-2022',4,'Bachelor of Arts in Business Administration');
+insert into recruitment_job_details values('JD0090','STFF090','FA','Inflight Services Manager','20-Sep-2022',6,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0091','STFF091','GR','Aircraft Cleaner','15-Nov-2022',1,'High School Diploma');
+insert into recruitment_job_details values('JD0092','STFF092','TM','Travel Coordinator','10-Dec-2022',3,'Diploma in Travel and Tourism Management');
+insert into recruitment_job_details values('JD0093','STFF093','CC','Reservation Agent','25-Sep-2022',2,'Bachelor of Arts in Business Administration');
+insert into recruitment_job_details values('JD0094','STFF094','OP','Airline Operations Coordinator','20-Oct-2022',5,'Bachelor of Science in Aviation Operations');
+insert into recruitment_job_details values('JD0095','STFF095','PL','Chief Pilot','15-Nov-2022',10,'Airline Transport Pilot License');
+insert into recruitment_job_details values('JD0096','STFF096','SC','Cargo Agent','10-Sep-2022',1,'Diploma in Logistics and Supply Chain Management');
+insert into recruitment_job_details values('JD0097','STFF097','GR','Baggage Handler','05-Nov-2022',2,'High School Diploma');
+insert into recruitment_job_details values('JD0098','STFF098','IT','Database Administrator','20-Dec-2022',4,'Bachelor of Science in Computer Science');
+insert into recruitment_job_details values('JD0099','STFF099','CC','Flight Dispatcher','12-Nov-2022',3,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0100','STFF100','FA','Inflight Supervisor','25-Oct-2022',5,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0101','STFF101','FA','Flight Attendant','26-Apr-2023',2,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0102','STFF102','PIL','Pilot','27-Apr-2023',10,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0103','STFF103','ENG','Engineer','28-Apr-2023',3,'Bachelor of Science in Mechanical Engineering');
+insert into recruitment_job_details values('JD0104','STFF104','FA','Inflight Supervisor','29-Apr-2023',5,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0105','STFF105','CS','Customer Service Representative','30-Apr-2023',1,'High School Diploma');
+insert into recruitment_job_details values('JD0106','STFF106','FA','Flight Attendant','01-May-2023',3,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0107','STFF107','ENG','Engineer','02-May-2023',7,'Bachelor of Science in Electrical Engineering');
+insert into recruitment_job_details values('JD0108','STFF108','FA','Inflight Supervisor','03-May-2023',8,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0109','STFF109','PIL','Pilot','04-May-2023',15,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0110','STFF110','CS','Customer Service Representative','05-May-2023',2,'High School Diploma');
+insert into recruitment_job_details values('JD0111','STFF111','FA','Flight Attendant','06-May-2023',4,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0112','STFF112','ENG','Engineer','07-May-2023',9,'Bachelor of Science in Civil Engineering');
+insert into recruitment_job_details values('JD0113','STFF113','FA','Inflight Supervisor','08-May-2023',10,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0114','STFF114','CS','Customer Service Representative','09-May-2023',1,'High School Diploma');
+insert into recruitment_job_details values('JD0115','STFF115','PIL','Pilot','10-May-2023',12,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0116','STFF116','FA','Flight Attendant','11-May-2023',6,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0117','STFF117','ENG','Engineer','12-May-2023',5,'Bachelor of Science in Computer Engineering');
+insert into recruitment_job_details values('JD0118','STFF118','FA','Inflight Supervisor','13-May-2023',7,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0119','STFF119','CS','Customer Service Representative','14-May-2023',1,'High School Diploma');
+insert into recruitment_job_details values('JD0120','STFF120','PIL','Pilot','15-May-2023',14,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0121','STFF121','FA','Flight Attendant','16-May-2023',5,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0122','STFF122','ENG','Engineer','17-May-2023',8,'Bachelor of Science in Mechanical Engineering');
+insert into recruitment_job_details values('JD0123','STFF123','FA','Inflight Supervisor','18-May-2023',11,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0124','STFF124','CS','Customer Service Representative','19-May-2023',2,'High School Diploma');
+insert into recruitment_job_details values('JD0125','STFF125','PIL','Pilot','20-May-2023',13,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0126','STFF126','FA','Flight Attendant','21-May-2023',6,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0127','STFF127','ENG','Engineer','22-May-2023',9,'Bachelor of Science in Electrical Engineering');
+insert into recruitment_job_details values('JD0128','STFF128','FA','Inflight Supervisor','23-May-2023',12,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0129','STFF129','CS','Customer Service Representative','24-May-2023',3,'High School Diploma');
+insert into recruitment_job_details values('JD0130','STFF130','PIL','Pilot','25-May-2023',16,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0131','STFF131','FA','Flight Attendant','26-May-2023',7,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0132','STFF132','ENG','Engineer','27-May-2023',10,'Bachelor of Science in Civil Engineering');
+insert into recruitment_job_details values('JD0133','STFF133','FA','Inflight Supervisor','28-May-2023',13,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0134','STFF134','CS','Customer Service Representative','29-May-2023',4,'High School Diploma');
+insert into recruitment_job_details values('JD0135','STFF135','PIL','Pilot','30-May-2023',17,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0136','STFF136','FA','Flight Attendant','31-May-2023',8,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0137','STFF137','ENG','Engineer','01-Jun-2023',11,'Bachelor of Science in Computer Engineering');
+insert into recruitment_job_details values('JD0138','STFF138','FA','Inflight Supervisor','02-Jun-2023',14,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0139','STFF139','ENG','Aircraft Avionics Inspector','02-Dec-2022',8,'Associate Degree in Avionics Technology');
+insert into recruitment_job_details values('JD0140','STFF140','FA','Inflight Trainer','03-Dec-2022',6,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0141','STFF141','CS','Airline Station Manager','04-Dec-2022',10,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0142','STFF142','PIL','Check Airman','05-Dec-2022',15,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0143','STFF143','ENG','Aircraft Structures Engineer','06-Dec-2022',5,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0144','STFF144','CS','Airline Operations Manager','07-Dec-2022',12,'Bachelor of Science in Business Administration');
+insert into recruitment_job_details values('JD0145','STFF145','FA','Inflight Service Manager','08-Dec-2022',8,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0146','STFF146','ENG','Aircraft Systems Engineer','09-Dec-2022',6,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0147','STFF147','PIL','Flight Instructor','10-Dec-2022',5,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0148','STFF148','CS','Airline Marketing Manager','11-Dec-2022',10,'Bachelor of Science in Marketing');
+insert into recruitment_job_details values('JD0149','STFF149','FA','Inflight Service Coordinator','12-Dec-2022',7,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0150','STFF150','ENG','Aircraft Structures Technician','13-Dec-2022',4,'Associate Degree in Aircraft Maintenance Engineering');
+insert into recruitment_job_details values('JD0151','STFF151','PIL','First Officer - Passenger','14-Dec-2022',3,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0152','STFF152','CS','Airline Fleet Manager','15-Dec-2022',8,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0153','STFF153','FA','Inflight Service Supervisor','16-Dec-2022',6,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0154','STFF154','ENG','Aircraft Avionics Inspector','17-Dec-2022',5,'Associate Degree in Avionics Technology');
+insert into recruitment_job_details values('JD0155','STFF155','PIL','Captain - Cargo','18-Dec-2022',10,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0156','STFF156','CS','Airline Network Planner','19-Dec-2022',12,'Bachelor of Science in Business Administration');
+insert into recruitment_job_details values('JD0157','STFF157','FA','Inflight Trainer','20-Dec-2022',6,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0158','STFF158','ENG','Aircraft Structures Engineer','21-Dec-2022',5,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0159','STFF159','CS','Airline Station Manager','22-Dec-2022',10,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0160','STFF160','PIL','Check Airman','23-Dec-2022',15,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0161','STFF161','FA','Inflight Service Manager','24-Dec-2022',8,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0162','STFF162','ENG','Aircraft Systems Engineer','25-Dec-2022',6,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0163','STFF163','CS','Airline Operations Manager','26-Dec-2022',12,'Bachelor of Science in Business Administration');
+insert into recruitment_job_details values('JD0164','STFF164','FA','Inflight Service Coordinator','27-Dec-2022',7,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0165','STFF165','PIL','Flight Instructor','28-Dec-2022',5,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0166','STFF166','CS','Airline Marketing Manager','29-Dec-2022',10,'Bachelor of Science in Marketing');
+insert into recruitment_job_details values('JD0167','STFF167','ENG','Aircraft Structures Technician','30-Dec-2022',4,'Associate Degree in Aircraft Maintenance Engineering');
+insert into recruitment_job_details values('JD0168','STFF168','PIL','First Officer - Passenger','31-Dec-2022',3,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0169','STFF169','FA','Inflight Service Supervisor','01-Jan-2023',6,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0170','STFF170','ENG','Aircraft Avionics Inspector','02-Jan-2023',5,'Associate Degree in Avionics Technology');
+insert into recruitment_job_details values('JD0171','STFF171','CS','Airline Fleet Manager','03-Jan-2023',8,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0172','STFF172','FA','Inflight Trainer','04-Jan-2023',6,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0173','STFF173','ENG','Aircraft Structures Engineer','05-Jan-2023',5,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0174','STFF174','CS','Airline Station Manager','06-Jan-2023',10,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0175', 'STFF175', 'CS', 'Airline Station Manager', '06-Jan-2023', 10, 'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0176','STFF176','FA','Inflight Service Manager','07-Jan-2023',8,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0177','STFF177','ENG','Aircraft Systems Engineer','08-Jan-2023',6,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0178','STFF178','CS','Airline Operations Manager','09-Jan-2023',12,'Bachelor of Science in Business Administration');
+insert into recruitment_job_details values('JD0179','STFF179','FA','Inflight Service Coordinator','10-Jan-2023',7,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0180','STFF180','PIL','Flight Instructor','11-Jan-2023',5,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0181','STFF181','CS','Airline Marketing Manager','12-Jan-2023',10,'Bachelor of Science in Marketing');
+insert into recruitment_job_details values('JD0182','STFF182','ENG','Aircraft Structures Technician','13-Jan-2023',4,'Associate Degree in Aircraft Maintenance Engineering');
+insert into recruitment_job_details values('JD0183','STFF183','PIL','First Officer - Passenger','14-Jan-2023',3,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0184','STFF184','FA','Inflight Service Supervisor','15-Jan-2023',6,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0185','STFF185','ENG','Aircraft Avionics Inspector','16-Jan-2023',5,'Associate Degree in Avionics Technology');
+insert into recruitment_job_details values('JD0186','STFF186','CS','Airline Fleet Manager','17-Jan-2023',8,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0187','STFF187','FA','Inflight Trainer','18-Jan-2023',6,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0188','STFF188','ENG','Aircraft Structures Engineer','19-Jan-2023',5,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0189','STFF189','CS','Airline Station Manager','20-Jan-2023',10,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0190','STFF190','PIL','Check Airman','21-Jan-2023',15,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0191','STFF191','FA','Inflight Service Manager','22-Jan-2023',8,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0192','STFF192','ENG','Aircraft Systems Engineer','23-Jan-2023',6,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0193','STFF193','CS','Airline Operations Manager','24-Jan-2023',12,'Bachelor of Science in Business Administration');
+insert into recruitment_job_details values('JD0194','STFF194','PIL','Captain - Cargo','25-Jan-2023',15,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0195','STFF195','ENG','Aircraft Maintenance Planner','26-Jan-2023',5,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0196','STFF196','CS','Airline Revenue Manager','27-Jan-2023',8,'Bachelor of Science in Business Administration');
+insert into recruitment_job_details values('JD0197','STFF197','FA','Inflight Service Coordinator','28-Jan-2023',7,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0198','STFF198','ENG','Aircraft Structures Technician','29-Jan-2023',4,'Associate Degree in Aircraft Maintenance Engineering');
+insert into recruitment_job_details values('JD0199','STFF199','PIL','First Officer - Cargo','30-Jan-2023',3,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0200','STFF200','FA','Inflight Service Supervisor','31-Jan-2023',6,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0201','STFF201','CS','Airline Marketing Manager','01-Feb-2023',10,'Bachelor of Science in Marketing');
+insert into recruitment_job_details values('JD0202','STFF202','ENG','Aircraft Avionics Inspector','02-Feb-2023',5,'Associate Degree in Avionics Technology');
+insert into recruitment_job_details values('JD0203','STFF203','FA','Inflight Trainer','03-Feb-2023',6,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0204','STFF204','ENG','Aircraft Structures Engineer','04-Feb-2023',5,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0205','STFF205','CS','Airline Fleet Manager','05-Feb-2023',8,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0206','STFF206','PIL','Check Airman','06-Feb-2023',15,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0207','STFF207','FA','Inflight Service Manager','07-Feb-2023',8,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0208','STFF208','ENG','Aircraft Systems Engineer','08-Feb-2023',6,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0209','STFF209','CS','Airline Operations Manager','09-Feb-2023',12,'Bachelor of Science in Business Administration');
+insert into recruitment_job_details values('JD0210','STFF210','FA','Inflight Service Coordinator','10-Feb-2023',7,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0211','STFF211','ENG','Aircraft Maintenance Planner','11-Feb-2023',5,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0212','STFF212','PIL','First Officer - Cargo','12-Feb-2023',3,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0213','STFF213','CS','Airline Revenue Analyst','13-Feb-2023',4,'Bachelor of Science in Business Administration');
+insert into recruitment_job_details values('JD0214','STFF214','ENG','Aircraft Maintenance Technician','14-Feb-2023',2,'Associate Degree in Aircraft Maintenance Engineering');
+insert into recruitment_job_details values('JD0215','STFF215','FA','Inflight Service Supervisor','15-Feb-2023',6,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0216','STFF216','ENG','Aircraft Structures Technician','16-Feb-2023',4,'Associate Degree in Avionics Technology');
+insert into recruitment_job_details values('JD0217','STFF217','PIL','Captain - Cargo','17-Feb-2023',15,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0218','STFF218','CS','Airline Operations Analyst','18-Feb-2023',5,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0219','STFF219','ENG','Aircraft Avionics Inspector','19-Feb-2023',5,'Associate Degree in Avionics Technology');
+insert into recruitment_job_details values('JD0220','STFF220','FA','Inflight Trainer','20-Feb-2023',6,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0221','STFF221','ENG','Aircraft Structures Engineer','21-Feb-2023',5,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0222','STFF222','CS','Airline Fleet Coordinator','22-Feb-2023',7,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0223','STFF223','PIL','Check Airman','23-Feb-2023',15,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0224','STFF224','FA','Inflight Service Manager','24-Feb-2023',8,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0225','STFF225','ENG','Aircraft Systems Engineer','25-Feb-2023',6,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0226','STFF226','CS','Airline Operations Manager','26-Feb-2023',12,'Bachelor of Science in Business Administration');
+insert into recruitment_job_details values('JD0227','STFF227','ENG','Aircraft Maintenance Planner','27-Feb-2023',5,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0228','STFF228','PIL','First Officer - Cargo','28-Feb-2023',3,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0229','STFF229','CS','Airline Revenue Manager','01-Mar-2023',8,'Bachelor of Science in Business Administration');
+insert into recruitment_job_details values('JD0230','STFF230','ENG','Aircraft Maintenance Supervisor','02-Mar-2023',10,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0231','STFF231','FA','Inflight Service Coordinator','03-Mar-2023',5,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0232','STFF232','ENG','Aircraft Quality Control Inspector','04-Mar-2023',7,'Associate Degree in Aircraft Maintenance Engineering');
+insert into recruitment_job_details values('JD0233','STFF233','CS','Airline Network Planning Analyst','05-Mar-2023',6,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0234','STFF234','PIL','First Officer - Passenger','06-Mar-2023',4,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0235','STFF235','ENG','Aircraft Structures Technician','07-Mar-2023',3,'Associate Degree in Avionics Technology');
+insert into recruitment_job_details values('JD0236','STFF236','FA','Inflight Service Supervisor','08-Mar-2023',7,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0237','STFF237','ENG','Aircraft Avionics Inspector','09-Mar-2023',5,'Associate Degree in Avionics Technology');
+insert into recruitment_job_details values('JD0238','STFF238','CS','Airline Operations Analyst','10-Mar-2023',6,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0239','STFF239','PIL','Captain - Passenger','11-Mar-2023',15,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0240','STFF240','ENG','Aircraft Maintenance Technician','12-Mar-2023',2,'Associate Degree in Aircraft Maintenance Engineering');
+insert into recruitment_job_details values('JD0241','STFF241','FA','Inflight Trainer','13-Mar-2023',5,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0242','STFF242','ENG','Aircraft Structures Engineer','14-Mar-2023',5,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0243','STFF243','CS','Airline Fleet Coordinator','15-Mar-2023',7,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0244','STFF244','PIL','Check Airman','16-Mar-2023',15,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0245','STFF245','ENG','Aircraft Systems Engineer','17-Mar-2023',6,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0246','STFF246','CS','Airline Operations Manager','18-Mar-2023',12,'Bachelor of Science in Business Administration');
+insert into recruitment_job_details values('JD0247','STFF247','ENG','Aircraft Maintenance Planner','19-Mar-2023',5,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0248','STFF248','FA','Inflight Service Trainer','20-Mar-2023',8,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0249','STFF249','ENG','Aircraft Structures Analyst','21-Mar-2023',6,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0250','STFF250','CS','Airline Revenue Analyst','22-Mar-2023',5,'Bachelor of Science in Business Administration');
+insert into recruitment_job_details values('JD0251','STFF251','PIL','First Officer - Cargo','23-Mar-2023',4,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0252','STFF252','ENG','Aircraft Quality Control Technician','24-Mar-2023',3,'Associate Degree in Aircraft Maintenance Engineering');
+insert into recruitment_job_details values('JD0253','STFF253','FA','Inflight Service Manager','25-Mar-2023',9,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0254','STFF254','ENG','Aircraft Avionics Engineer','26-Mar-2023',6,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0255','STFF255','CS','Airline Operations Analyst','27-Mar-2023',7,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0256','STFF256','PIL','Captain - Cargo','28-Mar-2023',16,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0257','STFF257','ENG','Aircraft Maintenance Supervisor','29-Mar-2023',5,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0258','STFF258','FA','Inflight Service Coordinator','30-Mar-2023',4,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0259','STFF259','ENG','Aircraft Structures Technician','31-Mar-2023',3,'Associate Degree in Avionics Technology');
+insert into recruitment_job_details values('JD0260','STFF260','CS','Airline Network Planning Analyst','01-Apr-2023',6,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0261','STFF261','PIL','First Officer - Passenger','02-Apr-2023',5,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0262','STFF262','ENG','Aircraft Maintenance Technician','03-Apr-2023',2,'Associate Degree in Aircraft Maintenance Engineering');
+insert into recruitment_job_details values('JD0263','STFF263','FA','Inflight Trainer','04-Apr-2023',4,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0264','STFF264','ENG','Aircraft Structures Engineer','05-Apr-2023',5,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0265','STFF265','CS','Airline Fleet Coordinator','06-Apr-2023',7,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0266','STFF266','PIL','Captain - Passenger','07-Apr-2023',15,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0267','STFF267','ENG','Aircraft Avionics Technician','08-Apr-2023',3,'Associate Degree in Avionics Technology');
+insert into recruitment_job_details values('JD0268','STFF268','FA','Inflight Service Analyst','09-Apr-2023',6,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0269','STFF269','ENG','Aircraft Quality Control Analyst','10-Apr-2023',4,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0270','STFF270','CS','Airline Operations Coordinator','11-Apr-2023',5,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0271','STFF271','PIL','First Officer - Cargo','12-Apr-2023',4,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0272','STFF272','ENG','Aircraft Maintenance Analyst','13-Apr-2023',3,'Associate Degree in Aircraft Maintenance Engineering');
+insert into recruitment_job_details values('JD0273','STFF273','FA','Inflight Service Trainer','14-Apr-2023',7,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0274','STFF274','ENG','Aircraft Structures Analyst','15-Apr-2023',5,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0275','STFF275','CS','Airline Revenue Analyst','16-Apr-2023',6,'Bachelor of Science in Business Administration');
+insert into recruitment_job_details values('JD0276','STFF276','PIL','Captain - Passenger','17-Apr-2023',14,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0277','STFF277','ENG','Aircraft Avionics Engineer','18-Apr-2023',7,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0278','STFF278','FA','Inflight Service Manager','19-Apr-2023',8,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0279','STFF279','ENG','Aircraft Maintenance Supervisor','20-Apr-2023',6,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0280','STFF280','CS','Airline Network Planning Analyst','21-Apr-2023',7,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0281','STFF281','PIL','First Officer - Passenger','22-Apr-2023',6,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0282','STFF282','ENG','Aircraft Maintenance Technician','23-Apr-2023',3,'Associate Degree in Aircraft Maintenance Engineering');
+insert into recruitment_job_details values('JD0283','STFF283','FA','Inflight Trainer','24-Apr-2023',6,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0284','STFF284','ENG','Aircraft Structures Engineer','25-Apr-2023',8,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0285','STFF285','CS','Airline Pricing Analyst','26-Apr-2023',5,'Bachelor of Science in Business Administration');
+insert into recruitment_job_details values('JD0286','STFF286','PIL','Captain - Cargo','27-Apr-2023',16,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0287','STFF287','ENG','Aircraft Maintenance Analyst','28-Apr-2023',5,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0288','STFF288','FA','Inflight Service Analyst','29-Apr-2023',7,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0289','STFF289','ENG','Aircraft Avionics Technician','30-Apr-2023',4,'Associate Degree in Avionics Technology');
+insert into recruitment_job_details values('JD0290','STFF290','CS','Airline Operations Coordinator','01-May-2023',6,'Bachelor of Science in Aviation Management');
+insert into recruitment_job_details values('JD0291','STFF291','PIL','First Officer - Cargo','02-May-2023',5,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0292','STFF292','ENG','Aircraft Quality Control Analyst','03-May-2023',3,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0293','STFF293','FA','Inflight Service Trainer','04-May-2023',8,'Bachelor of Science in Hospitality Management');
+insert into recruitment_job_details values('JD0294','STFF294','ENG','Aircraft Maintenance Supervisor','05-May-2023',7,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0295','STFF295','CS','Airline Revenue Analyst','06-May-2023',8,'Bachelor of Science in Business Administration');
+insert into recruitment_job_details values('JD0296','STFF296','PIL','Captain - Passenger','07-May-2023',17,'Bachelor of Science in Aeronautics');
+insert into recruitment_job_details values('JD0297','STFF297','ENG','Aircraft Avionics Engineer','08-May-2023',8,'Bachelor of Science in Aerospace Engineering');
+insert into recruitment_job_details values('JD0298','STFF298','FA','Inflight Service Manager','09-May-2023',9,'Bachelor of Arts in Communication');
+insert into recruitment_job_details values('JD0299','STFF299','ENG','Aircraft Maintenance Technician','10-May-2023',4,'Associate Degree in Aircraft Maintenance Engineering');
+insert into recruitment_job_details values('JD0300','STFF300','CS','Airline Network Planning Analyst','11-May-2023',9,'Bachelor of Science in Aviation Management');
+
+/*advertisment details*/
+insert into advertisement_details values('JD0001','AG0001','04-Jan-2015','Recruitment of Sales Consultant','Indeed');
+insert into advertisement_details values('JD0002','AG0002','06-Jan-2015','Recruitment of Finance Director','Indeed');
+insert into advertisement_details values('JD0003','AG0003','17-Jan-2015','Recruitment of Records Clerk','Indeed');
+insert into advertisement_details values('JD0004','AG0004','26-Jan-2015','Recruitment of Finance clerk','Indeed');
+insert into advertisement_details values('JD0005','AG0005','08-Feb-2015','Recruitment of Collection Agent','Indeed');
+insert into advertisement_details values('JD0006','AG0006','14-Feb-2015','Recruitment of Legal Secretary','Indeed');
+insert into advertisement_details values('JD0007','AG0007','19-Feb-2015','Recruitment of Marketing Coordinator','Indeed');
+insert into advertisement_details values('JD0008','AG0008','26-Feb-2015','Recruitment of Sales Representative','Indeed');
+insert into advertisement_details values('JD0009','AG0009','05-Mar-2015','Recruitment of Financial Analyst','Indeed');
+insert into advertisement_details values('JD0010','AG0010','11-Mar-2015','Recruitment of Marketing Assistant','Indeed');
+insert into advertisement_details values('JD0011','AG0001','19-Mar-2015','Recruitment of Flight Attendant','Indeed');
+insert into advertisement_details values('JD0012','AG0002','25-Mar-2015','Recruitment of Pilot','Indeed');
+insert into advertisement_details values('JD0013','AG0003','04-Apr-2015','Recruitment of Aircraft Mechanic','Indeed');
+insert into advertisement_details values('JD0014','AG0004','16-Apr-2015','Recruitment of Air Traffic Controller','Indeed');
+insert into advertisement_details values('JD0015','AG0005','23-Apr-2015','Recruitment of Cabin Crew','Indeed');
+insert into advertisement_details values('JD0016','AG0006','28-Apr-2015','Recruitment of Ground Service Agent','Indeed');
+insert into advertisement_details values('JD0017','AG0007','08-May-2015','Recruitment of Cargo Agent','Indeed');
+insert into advertisement_details values('JD0018','AG0008','13-May-2015','Recruitment of Avionics Technician','Indeed');
+insert into advertisement_details values('JD0019','AG0009','17-May-2015','Recruitment of Airport Customer Service Agent','Indeed');
+insert into advertisement_details values('JD0020','AG0010','25-May-2015','Recruitment of Aircraft Dispatcher','Indeed');
+insert into advertisement_details values('JD0021','AG0001','05-Jul-2015','Recruitment of Aircraft Dispatcher','Facebook');
+insert into advertisement_details values('JD0022','AG0002','19-Jul-2015','Recruitment of Air Traffic Controller','Facebook');
+insert into advertisement_details values('JD0023','AG0003','26-Jul-2015','Recruitment of Avionics Technician','Facebook');
+insert into advertisement_details values('JD0024','AG0004','30-Jul-2015','Recruitment of Cargo Supervisor','Facebook');
+insert into advertisement_details values('JD0025','AG0005','06-Aug-2015','Recruitment of Flight Inspector','Facebook');
+insert into advertisement_details values('JD0026','AG0006','15-Aug-2015','Recruitment of Flight Operations Coordinator','Facebook');
+insert into advertisement_details values('JD0027','AG0007','17-Aug-2015','Recruitment of Passenger Service Agent','Facebook');
+insert into advertisement_details values('JD0028','AG0008','29-Aug-2015','Recruitment of Operations Control Center Specialist','Facebook');
+insert into advertisement_details values('JD0029','AG0009','07-Sep-2015','Recruitment of Airline Operations Agent','Facebook');
+insert into advertisement_details values('JD0030','AG0010','22-Sep-2015','Recruitment of Aircraft Load Planner','Facebook');
+insert into advertisement_details values('JD0031','AG0001','27-Sep-2015','Recruitment of Flight Dispatcher','Twitter');
+insert into advertisement_details values('JD0032','AG0002','30-Sep-2015','Recruitment of Crew Scheduler','Twitter');
+insert into advertisement_details values('JD0033','AG0003','02-Oct-2015','Recruitment of Airline Catering Coordinator','Twitter');
+insert into advertisement_details values('JD0034','AG0004','05-Oct-2015','Recruitment of Baggage Handler','Twitter');
+insert into advertisement_details values('JD0035','AG0005','07-Oct-2015','Recruitment of Airline Station Agent','Twitter');
+insert into advertisement_details values('JD0036','AG0006','10-Oct-2015','Recruitment of Airline Dispatcher','Twitter');
+insert into advertisement_details values('JD0037','AG0007','01-Nov-2015','Recruitment of Airline Customer Relations Specialist','Twitter');
+insert into advertisement_details values('JD0038','AG0008','12-Nov-2015','Recruitment of Airline Operations Manager','Twitter');
+insert into advertisement_details values('JD0039','AG0009','17-Nov-2015','Recruitment of Airline Quality Control Inspector','Twitter');
+insert into advertisement_details values('JD0040','AG0010','20-Nov-2015','Recruitment of Airline Safety Inspector','Twitter');
+insert into advertisement_details values('JD0041','AG0001','03-Dec-2015','Recruitment of Aircraft Maintenance Technician','Facebook');
+insert into advertisement_details values('JD0042','AG0002','16-Dec-2015','Recruitment of Airline Pilot','Facebook');
+insert into advertisement_details values('JD0043','AG0003','20-Dec-2015','Recruitment of Airport Manager','Facebook');
+insert into advertisement_details values('JD0044','AG0004','30-Dec-2015','Recruitment of Airline Sales Representative','Facebook');
+insert into advertisement_details values('JD0045','AG0005','03-Jan-2016','Recruitment of Aviation Safety Inspector','Facebook');
+insert into advertisement_details values('JD0046','AG0006','05-Jan-2016','Recruitment of Airline Operations Coordinator','Facebook');
+insert into advertisement_details values('JD0047','AG0007','08-Jan-2016','Recruitment of Airport Security Officer','Facebook');
+insert into advertisement_details values('JD0048','AG0008','15-Jan-2016','Recruitment of Airline Reservation Agent','Facebook');
+insert into advertisement_details values('JD0049','AG0009','23-Jan-2016','Recruitment of Aircraft Maintenance Manager','Facebook');
+insert into advertisement_details values('JD0050','AG0010','04-Feb-2016','Recruitment of Airline Crew Scheduler','Facebook');
+insert into advertisement_details values('JD0051','AG0001','17-Feb-2016','Recruitment of Airline Financial Analyst','Twitter');
+insert into advertisement_details values('JD0052','AG0002','20-Feb-2016','Recruitment of Airline Revenue Analyst','Twitter');
+insert into advertisement_details values('JD0053','AG0003','23-Feb-2016','Recruitment of Airline Operations Analyst','Twitter');
+insert into advertisement_details values('JD0054','AG0004','02-Mar-2016','Recruitment of Airline Marketing Coordinator','Twitter');
+insert into advertisement_details values('JD0055','AG0005','18-Mar-2016','Recruitment of Aviation Maintenance Technician','Twitter');
+insert into advertisement_details values('JD0056','AG0006','25-Mar-2016','Recruitment of Airline Reservation Supervisor','Twitter');
+insert into advertisement_details values('JD0057','AG0007','30-Mar-2016','Recruitment of Airline Ground Operations Manager','Twitter');
+insert into advertisement_details values('JD0058','AG0008','05-Apr-2016','Recruitment of Airline Fleet Planner','Twitter');
+insert into advertisement_details values('JD0059','AG0009','07-Apr-2016','Recruitment of Airport Operations Coordinator','Twitter');
+insert into advertisement_details values('JD0060','AG0010','13-Apr-2016','Recruitment of Airline Quality Assurance Specialist','Twitter');
+insert into advertisement_details values('JD0061','AG0001','19-Apr-2016','Recruitment of Airline Ground Crew','Facebook');
+insert into advertisement_details values('JD0062','AG0002','03-May-2016','Recruitment of Airline Operations Supervisor','Facebook');
+insert into advertisement_details values('JD0063','AG0003','17-May-2016','Recruitment of Airport Customer Service Agent','Facebook');
+insert into advertisement_details values('JD0064','AG0004','24-May-2016','Recruitment of Airline Baggage Handler','Facebook');
+insert into advertisement_details values('JD0065','AG0005','29-May-2016','Recruitment of Aviation Security Officer','Facebook');
+insert into advertisement_details values('JD0066','AG0006','02-Jun-2016','Recruitment of Airline Ticketing Agent','Facebook');
+insert into advertisement_details values('JD0067','AG0007','04-Jun-2016','Recruitment of Airport Operations Manager','Facebook');
+insert into advertisement_details values('JD0068','AG0008','16-Jun-2016','Recruitment of Airline Revenue Management Analyst','Facebook');
+insert into advertisement_details values('JD0069','AG0009','19-Jun-2016','Recruitment of Aviation Maintenance Supervisor','Facebook');
+insert into advertisement_details values('JD0070','AG0010','05-Jul-2016','Recruitment of Airline Reservation Agent Supervisor','Facebook');
+insert into advertisement_details values('JD0071','AG0001','08-Jul-2016','Recruitment of Airline Operations Analyst','Twitter');
+insert into advertisement_details values('JD0072','AG0002','14-Jul-2016','Recruitment of Airline Marketing Coordinator','Twitter');
+insert into advertisement_details values('JD0073','AG0003','19-Jul-2016','Recruitment of Airline Quality Assurance Specialist','Twitter');
+insert into advertisement_details values('JD0074','AG0004','15-Aug-2016','Recruitment of Aviation Maintenance Technician','Twitter');
+insert into advertisement_details values('JD0075','AG0005','18-Aug-2016','Recruitment of Airline Ground Operations Manager','Twitter');
+insert into advertisement_details values('JD0076','AG0006','20-Aug-2016','Recruitment of Airline Fleet Planner','Twitter');
+insert into advertisement_details values('JD0077','AG0007','23-Aug-2016','Recruitment of Airport Operations Coordinator','Twitter');
+insert into advertisement_details values('JD0078','AG0008','02-Sep-2016','Recruitment of Airline Reservation Agent Supervisor','Twitter');
+insert into advertisement_details values('JD0079','AG0009','02-Sep-2016','Recruitment of Airline Reservation Agent Supervisor', 'Twitter');
+insert into advertisement_details values('JD0080','AG0010','09-Sep-2016','Recruitment of Airline Revenue Management Analyst','Twitter');
+insert into advertisement_details values('JD0081','AG0001','15-Sep-2016','Recruitment of Aviation Maintenance Supervisor','Twitter');
+insert into advertisement_details values('JD0082','AG0002','29-Sep-2016','Recruitment of Airline Reservation Agent','Twitter');
+insert into advertisement_details values('JD0083','AG0003','07-Oct-2016','Recruitment of Airline Operations Analyst','LinkedIn');
+insert into advertisement_details values('JD0084','AG0004','11-Oct-2016','Recruitment of Airline Marketing Coordinator','LinkedIn');
+insert into advertisement_details values('JD0085','AG0005','12-Oct-2016','Recruitment of Airline Quality Assurance Specialist','LinkedIn');
+insert into advertisement_details values('JD0086','AG0006','15-Oct-2016','Recruitment of Aviation Maintenance Technician','LinkedIn');
+insert into advertisement_details values('JD0087','AG0007','02-Nov-2016','Recruitment of Airline Ground Operations Manager','LinkedIn');
+insert into advertisement_details values('JD0088','AG0008','05-Nov-2016','Recruitment of Airline Fleet Planner','LinkedIn');
+insert into advertisement_details values('JD0089','AG0009','19-Nov-2016','Recruitment of Airport Operations Coordinator','LinkedIn');
+insert into advertisement_details values('JD0090','AG0010','25-Nov-2016','Recruitment of Airline Reservation Agent Supervisor','LinkedIn');
+insert into advertisement_details values('JD0091','AG0001','13-Dec-2016','Recruitment of Airline Operations Analyst','Instagram');
+insert into advertisement_details values('JD0092','AG0002','23-Dec-2016','Recruitment of Airline Marketing Coordinator','Instagram');
+insert into advertisement_details values('JD0093','AG0003','23-Dec-2016','Recruitment of Airline Quality Assurance Specialist','Instagram');
+insert into advertisement_details values('JD0094','AG0004','30-Dec-2016','Recruitment of Aviation Maintenance Technician','Instagram');
+insert into advertisement_details values('JD0095','AG0005','06-Jan-2017','Recruitment of Airline Ground Operations Manager','Instagram');
+insert into advertisement_details values('JD0096','AG0006','08-Jan-2017','Recruitment of Airline Fleet Planner','Instagram');
+insert into advertisement_details values('JD0097','AG0007','11-Jan-2017','Recruitment of Airport Operations Coordinator','Instagram');
+insert into advertisement_details values('JD0098','AG0008','13-Jan-2017','Recruitment of Airline Marketing Coordinator','Facebook');
+insert into advertisement_details values('JD0099','AG0009','16-Feb-2017','Recruitment of Airline Reservation Agent Supervisor','Instagram');
+insert into advertisement_details values('JD0100','AG0010','18-Feb-2017','Recruitment of Airline Operations Analyst','Facebook');
+insert into advertisement_details values('JD0101','AG0001','21-Feb-2017','Recruitment of Airline Marketing Coordinator','Facebook');
+insert into advertisement_details values('JD0102','AG0002','23-Feb-2017','Recruitment of Airline Quality Assurance Specialist','Facebook');
+insert into advertisement_details values('JD0103','AG0003','04-Mar-2017','Recruitment of Aviation Maintenance Technician','Facebook');
+insert into advertisement_details values('JD0104','AG0004','07-Mar-2017','Recruitment of Airline Ground Operations Manager','Facebook');
+insert into advertisement_details values('JD0105','AG0005','11-Mar-2017','Recruitment of Airline Fleet Planner','Facebook');
+insert into advertisement_details values('JD0106','AG0006','16-Mar-2017','Recruitment of Airport Operations Coordinator','Facebook');
+insert into advertisement_details values('JD0107','AG0007','06-Apr-2017','Recruitment of Airline Reservation Agent Supervisor','Facebook');
+insert into advertisement_details values('JD0108','AG0008','08-Apr-2017','Recruitment of Airline Operations Analyst','Twitter');
+insert into advertisement_details values('JD0109','AG0009','11-Apr-2017','Recruitment of Airline Marketing Coordinator','Twitter');
+insert into advertisement_details values('JD0110','AG0010','13-Apr-2017','Recruitment of Airline Quality Assurance Specialist','Twitter');
+insert into advertisement_details values('JD0111','AG0001','01-May-2017','Recruitment of Aviation Maintenance Technician','Twitter');
+insert into advertisement_details values('JD0112','AG0002','15-May-2017','Recruitment of Airline Ground Operations Manager','Twitter');
+insert into advertisement_details values('JD0113','AG0003','21-May-2017','Recruitment of Airline Fleet Planner','Twitter');
+insert into advertisement_details values('JD0114','AG0004','23-May-2017','Recruitment of Airport Operations Coordinator','Twitter');
+insert into advertisement_details values('JD0115','AG0005','02-Jun-2017','Recruitment of Airline Reservation Agent Supervisor','LinkedIn');
+insert into advertisement_details values('JD0116','AG0006','12-Jun-2017','Recruitment of Airline Operations Analyst','LinkedIn');
+insert into advertisement_details values('JD0117','AG0007','28-Jun-2017','Recruitment of Airline Marketing Coordinator','LinkedIn');
+insert into advertisement_details values('JD0118','AG0008','29-Jun-2017','Recruitment of Airline Quality Assurance Specialist','LinkedIn');
+INSERT INTO advertisement_details VALUES('JD0119','AG0001','01-Jul-2017','Recruitment of Cabin Crew','Indeed');
+INSERT INTO advertisement_details VALUES('JD0120','AG0002','02-Jul-2017','Recruitment of Pilot','Monster');
+INSERT INTO advertisement_details VALUES('JD0121','AG0003','03-Jul-2017','Recruitment of Ground Crew','LinkedIn');
+INSERT INTO advertisement_details VALUES('JD0122','AG0004','04-Jul-2017','Recruitment of Aircraft Maintenance Technician','Indeed');
+INSERT INTO advertisement_details VALUES('JD0123','AG0005','05-Aug-2017','Recruitment of Customer Service Representative','Monster');
+INSERT INTO advertisement_details VALUES('JD0124','AG0006','16-Aug-2017','Recruitment of Flight Attendant','LinkedIn');
+INSERT INTO advertisement_details VALUES('JD0125','AG0007','17-Aug-2017','Recruitment of Aircraft Engineer','Indeed');
+INSERT INTO advertisement_details VALUES('JD0126','AG0008','28-Aug-2017','Recruitment of Operations Manager','Monster');
+INSERT INTO advertisement_details VALUES('JD0127','AG0009','09-Sep-2017','Recruitment of Air Traffic Controller','LinkedIn');
+INSERT INTO advertisement_details VALUES('JD0128','AG0010','13-Sep-2017','Recruitment of Cargo Handler','Indeed');
+INSERT INTO advertisement_details VALUES('JD0129','AG0001','15-Sep-2017','Recruitment of Flight Dispatcher','Monster');
+INSERT INTO advertisement_details VALUES('JD0130','AG0002','19-Sep-2017','Recruitment of Ramp Agent', 'LinkedIn');
+INSERT INTO advertisement_details VALUES('JD0131','AG0003','20-Sep-2017','Recruitment of Aircraft Cleaner', 'Indeed');
+INSERT INTO advertisement_details VALUES ('JD0132','AG0004','09-Oct-2017','Recruitment of Flight Operations Coordinator','Monster');
+INSERT INTO advertisement_details VALUES ('JD0133','AG0005','15-Oct-2017','Recruitment of Inflight Services Manager','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0134','AG0006','18-Oct-2017','Recruitment of Aircraft Inspector','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0135','AG0007','28-Oct-2017','Recruitment of Airline Sales Representative','Monster');
+INSERT INTO advertisement_details VALUES ('JD0136','AG0008','08-Nov-2017','Recruitment of Cabin Crew Trainer','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0137','AG0009','19-Nov-2017','Recruitment of Airport Duty Manager','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0138','AG0010','20-Nov-2017','Recruitment of Aviation Security Officer','Monster');
+INSERT INTO advertisement_details VALUES ('JD0139','AG0001','21-Nov-2017','Recruitment of Baggage Handler','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0140','AG0002','03-Dec-2017','Recruitment of Aircraft Dispatcher','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0141','AG0003','06-Dec-2017','Recruitment of Airline Customer Service Agent','Monster');
+INSERT INTO advertisement_details VALUES ('JD0142','AG0004','17-Dec-2017','Recruitment of Cargo Agent', 'LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0143','AG0005','25-Dec-2017','Recruitment of Flight Planning Coordinator','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0144','AG0006','04-Jan-2018','Recruitment of Airport Operations Supervisor','Monster');
+INSERT INTO advertisement_details VALUES ('JD0145','AG0007','17-Jan-2018','Recruitment of Airline Operations Analyst','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0146','AG0008','19-Jan-2018','Recruitment of Cabin Crew Manager','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0147','AG0009','28-Jan-2018','Recruitment of Aircraft Maintenance Supervisor','Monster');
+INSERT INTO advertisement_details VALUES ('JD0148','AG0010','02-Feb-2018','Recruitment of Airline Revenue Analyst','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0149','AG0001','06-Feb-2018','Recruitment of Aircraft Leasing Coordinator','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0149','AG0001','17-Feb-2018','Recruitment of Aircraft Leasing Coordinator','Monster');
+INSERT INTO advertisement_details VALUES ('JD0150','AG0002','25-Feb-2018','Recruitment of Airline Operations Coordinator','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0151','AG0003','02-Mar-2018','Recruitment of Flight Attendant','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0152','AG0004','13-Mar-2018','Recruitment of Airline Reservation Agent', 'Monster');
+INSERT INTO advertisement_details VALUES ('JD0153','AG0005','17-Mar-2018','Recruitment of Aircraft Maintenance Technician','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0154','AG0006','25-Mar-2018','Recruitment of Airline Operations Manager','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0155','AG0007','06-Apr-2018','Recruitment of Airport Ground Services Agent', 'Monster');
+INSERT INTO advertisement_details VALUES ('JD0156','AG0008','07-Apr-2018','Recruitment of Flight Dispatcher','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0157','AG0009','08-Apr-2018','Recruitment of Aircraft Maintenance Engineer','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0158','AG0010','09-Apr-2018','Recruitment of Airline Operations Analyst','Monster');
+INSERT INTO advertisement_details VALUES ('JD0159','AG0001','01-May-2018','Recruitment of Airport Duty Manager','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0160','AG0002','13-May-2018','Recruitment of Airline Revenue Analyst','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0161','AG0003','17-May-2018','Recruitment of Cabin Crew Trainer','Monster');
+INSERT INTO advertisement_details VALUES ('JD0162','AG0004','24-May-2018','Recruitment of Airport Operations Supervisor','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0163','AG0005','05-Jun-2018','Recruitment of Flight Operations Coordinator','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0164','AG0006','15-Jun-2018','Recruitment of Inflight Services Manager','Monster');
+INSERT INTO advertisement_details VALUES ('JD0165','AG0007','16-Jun-2018','Recruitment of Aircraft Inspector','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0166','AG0008','17-Jun-2018','Recruitment of Airline Sales Representative','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0167','AG0009','01-Jul-2018','Recruitment of Airline Customer Service Agent','Monster');
+INSERT INTO advertisement_details VALUES ('JD0168','AG0010','02-Jul-2018','Recruitment of Aircraft Ground Handling Agent','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0169','AG0001','13-Jul-2018','Recruitment of Airline Operations Coordinator','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0170','AG0002','24-Jul-2018','Recruitment of Flight Dispatcher','Monster');
+INSERT INTO advertisement_details VALUES ('JD0171','AG0003','05-Aug-2018','Recruitment of Airport Duty Manager','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0172','AG0004','06-Aug-2018','Recruitment of Airline Revenue Analyst','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0173','AG0005','07-Aug-2018','Recruitment of Cabin Crew Trainer','Monster');
+INSERT INTO advertisement_details VALUES ('JD0174','AG0006','08-Aug-2018','Recruitment of Airport Operations Supervisor','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0175','AG0007','09-Sep-2018','Recruitment of Flight Operations Coordinator','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0176','AG0008','10-Sep-2018','Recruitment of Inflight Services Manager', 'Monster');
+INSERT INTO advertisement_details VALUES ('JD0177','AG0009','17-Sep-2018','Recruitment of Aircraft Inspector','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0178','AG0010','22-Sep-2018','Recruitment of Airline Sales Representative','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0179','AG0001','01-Oct-2018','Recruitment of Airline Customer Service Agent','Monster');
+INSERT INTO advertisement_details VALUES ('JD0180','AG0002','12-Oct-2018','Recruitment of Aircraft Ground Handling Agent','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0181','AG0003','13-Oct-2018','Recruitment of Airline Operations Coordinator','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0182','AG0004','24-Oct-2018','Recruitment of Flight Dispatcher','Monster');
+INSERT INTO advertisement_details VALUES ('JD0183','AG0005','05-Nov-2018','Recruitment of Airport Duty Manager','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0184','AG0006','06-Nov-2018','Recruitment of Airline Revenue Analyst','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0185','AG0003','22-Nov-2028','Recruitment of Cabin Crew Trainer','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0186','AG0007','25-Nov-2018','Recruitment of Cabin Crew Trainer','Monster');
+INSERT INTO advertisement_details VALUES ('JD0187','AG0008','08-Dec-2018','Recruitment of Airport Operations Supervisor','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0188','AG0009','09-Dec-2018','Recruitment of Flight Operations Coordinator','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0189','AG0010','10-Dec-2018','Recruitment of Inflight Services Manager','Monster');
+INSERT INTO advertisement_details VALUES ('JD0190','AG0001','11-Dec-2018','Recruitment of Aircraft Inspector','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0191','AG0002','12-Dec-2018','Recruitment of Airline Sales Representative','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0192','AG0003','01-Jan-2019','Recruitment of Airline Customer Service Agent','Monster');
+INSERT INTO advertisement_details VALUES ('JD0193','AG0004','12-Jan-2019','Recruitment of Aircraft Ground Handling Agent','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0194','AG0005','23-Jan-2019','Recruitment of Airline Operations Coordinator','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0195','AG0006','24-Jan-2019','Recruitment of Flight Dispatcher','Monster');
+INSERT INTO advertisement_details VALUES ('JD0196','AG0007','05-Feb-2019','Recruitment of Airport Duty Manager','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0197','AG0008','06-Feb-2019','Recruitment of Airline Revenue Analyst', 'Indeed');
+INSERT INTO advertisement_details VALUES ('JD0198','AG0009','17-Feb-2019','Recruitment of Cabin Crew Trainer', 'Monster');
+INSERT INTO advertisement_details VALUES ('JD0199','AG0010','28-Feb-2019','Recruitment of Airport Operations Supervisor','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0200','AG0001','08-Mar-2019','Recruitment of Flight Operations Coordinator','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0201','AG0002','09-Mar-2019','Recruitment of Inflight Services Manager','Monster');
+INSERT INTO advertisement_details VALUES ('JD0202','AG0003','17-Mar-2019','Recruitment of Aircraft Inspector','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0203','AG0004','22-Mar-2019','Recruitment of Airline Sales Representative','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0204','AG0002','01-Apr-2019','Recruitment of Airline Revenue Analyst','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0205','AG0006','12-Apr-2019','Recruitment of Airline Customer Service Agent','Monster');
+INSERT INTO advertisement_details VALUES ('JD0206','AG0007','16-Apr-2019','Recruitment of Aircraft Ground Handling Agent','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0207','AG0008','21-Apr-2019','Recruitment of Airline Operations Coordinator','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0208','AG0009','04-May-2019','Recruitment of Flight Dispatcher','Monster');
+INSERT INTO advertisement_details VALUES ('JD0209','AG0010','15-May-2019','Recruitment of Airport Duty Manager','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0210','AG0001','26-May-2019','Recruitment of Airline Revenue Analyst','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0211','AG0002','27-May-2019','Recruitment of Cabin Crew Trainer', 'Monster');
+INSERT INTO advertisement_details VALUES ('JD0212','AG0003','08-Jun-2019','Recruitment of Airport Operations Supervisor','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0213','AG0004','09-Jun-2019','Recruitment of Flight Operations Coordinator','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0214','AG0005','11-Jun-2019','Recruitment of Inflight Services Manager','Monster');
+INSERT INTO advertisement_details VALUES ('JD0215','AG0006','13-Jun-2019','Recruitment of Aircraft Inspector','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0216','AG0007','01-Jul-2019','Recruitment of Airline Sales Representative','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0217','AG0008','02-Jul-2019','Recruitment of Airline Customer Service Agent','Monster');
+INSERT INTO advertisement_details VALUES ('JD0218','AG0009','16-Jul-2019','Recruitment of Aircraft Ground Handling Agent','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0219','AG0010','20-Jul-2019','Recruitment of Airline Operations Coordinator','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0220','AG0001','04-Aug-2019','Recruitment of Flight Dispatcher','Monster');
+INSERT INTO advertisement_details VALUES ('JD0221','AG0002','11-Aug-2019','Recruitment of Airport Duty Manager','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0222','AG0003','16-Aug-2019','Recruitment of Airline Revenue Analyst','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0223','AG0004','27-Aug-2019','Recruitment of Cabin Crew Trainer', 'Monster');
+INSERT INTO advertisement_details VALUES ('JD0224','AG0005','08-Sep-2019','Recruitment of Airport Operations Supervisor','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0225','AG0006','09-Sep-2019','Recruitment of Flight Operations Coordinator','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0226','AG0007','15-Sep-2019','Recruitment of Inflight Services Manager','Monster');
+INSERT INTO advertisement_details VALUES ('JD0227','AG0008','24-Sep-2019','Recruitment of Aircraft Inspector','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0228','AG0009','12-Oct-2019','Recruitment of Airline Sales Representative','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0229','AG0010','12-Oct-2019','Recruitment of Airline Customer Service Agent','Monster');
+INSERT INTO advertisement_details VALUES ('JD0230','AG0001','15-Oct-2019','Recruitment of Aircraft Ground Handling Agent','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0231','AG0002','01-Nov-2019','Recruitment of Airline Operations Coordinator','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0232','AG0003','04-Nov-2019','Recruitment of Flight Dispatcher','Monster');
+INSERT INTO advertisement_details VALUES ('JD0233','AG0004','15-Nov-2019','Recruitment of Airport Duty Manager','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0234','AG0005','26-Nov-2019','Recruitment of Airline Revenue Analyst','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0235','AG0006','07-Dec-2019','Recruitment of Cabin Crew Trainer', 'Monster');
+INSERT INTO advertisement_details VALUES ('JD0236','AG0007','18-Dec-2019','Recruitment of Airport Operations Supervisor','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0237','AG0008','19-Dec-2019','Recruitment of Flight Operations Coordinator','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0238','AG0009','20-Dec-2019','Recruitment of Inflight Services Manager','Monster');
+INSERT INTO advertisement_details VALUES ('JD0239','AG0010','11-Jan-2020','Recruitment of Aircraft Inspector','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0240','AG0001','12-Jan-2020','Recruitment of Airline Sales Representative', 'Indeed');
+INSERT INTO advertisement_details VALUES ('JD0241','AG0002','13-Feb-2020','Recruitment of Aircraft Ground Handling Agent','Monster');
+INSERT INTO advertisement_details VALUES ('JD0242','AG0003','14-Feb-2020','Recruitment of Airline Operations Coordinator','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0243','AG0004','15-Mar-2020','Recruitment of Flight Dispatcher','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0244','AG0005','16-Mar-2020','Recruitment of Airport Duty Manager','Monster');
+INSERT INTO advertisement_details VALUES ('JD0245','AG0006','17-Apr-2020','Recruitment of Airline Revenue Analyst','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0246','AG0007','18-Apr-2020','Recruitment of Cabin Crew Trainer', 'Indeed');
+INSERT INTO advertisement_details VALUES ('JD0247','AG0008','19-May-2020','Recruitment of Airport Operations Supervisor','Monster');
+INSERT INTO advertisement_details VALUES ('JD0248','AG0009','20-May-2020','Recruitment of Flight Operations Coordinator','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0249','AG0010','11-Jun-2020','Recruitment of Inflight Services Manager','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0250','AG0001','22-Jun-2020','Recruitment of Aircraft Inspector','Monster');
+INSERT INTO advertisement_details VALUES ('JD0251','AG0002','03-Jul-2020','Recruitment of Airline Sales Representative','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0252','AG0003','14-Jul-2020','Recruitment of Aircraft Ground Handling Agent','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0253','AG0004','25-Aug-2020','Recruitment of Airline Operations Coordinator','Monster');
+INSERT INTO advertisement_details VALUES ('JD0254','AG0005','26-Aug-2020','Recruitment of Flight Dispatcher','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0255', 'AG0006','17-Sep-2020','Recruitment of Airport Duty Manager','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0256','AG0007','18-Sep-2018','Recruitment of Airline Revenue Analyst','Monster');
+INSERT INTO advertisement_details VALUES ('JD0257','AG0008','29-Oct-2020','Recruitment of Cabin Crew Trainer','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0258','AG0009','30-Oct-2020','Recruitment of Airport Operations Supervisor','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0259','AG0010','01-Nov-2020','Recruitment of Flight Operations Coordinator','Monster');
+INSERT INTO advertisement_details VALUES ('JD0260','AG0001','30-Nov-2020','Recruitment of Inflight Services Manager','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0261','AG0002','02-Dec-2020','Recruitment of Aircraft Inspector','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0262','AG0003','03-Jan-2021','Recruitment of Airline Sales Representative','Monster');
+INSERT INTO advertisement_details VALUES ('JD0263','AG0004','04-Jan-2021','Recruitment of Aircraft Ground Handling Agent','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0264','AG0005','05-Feb-2021','Recruitment of Airline Operations Coordinator','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0265','AG0006','06-Feb-2021','Recruitment of Flight Dispatcher','Monster');
+INSERT INTO advertisement_details VALUES ('JD0266','AG0007','07-Mar-2021','Recruitment of Airport Duty Manager','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0267','AG0008','08-Mar-2021','Recruitment of Airline Revenue Analyst','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0268','AG0009','09-Apr-2021','Recruitment of Cabin Crew Trainer','Monster');
+INSERT INTO advertisement_details VALUES ('JD0269','AG0010','10-Apr-2021','Recruitment of Airport Operations Supervisor','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0270','AG0001','11-Apr-2021','Recruitment of Flight Operations Coordinator','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0271','AG0002','12-May-2021','Recruitment of Inflight Services Manager','Monster');
+INSERT INTO advertisement_details VALUES ('JD0272','AG0003','13-May-2021','Recruitment of Aircraft Inspector', 'LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0273','AG0004','14-Jun-2021','Recruitment of Airline Sales Representative','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0274','AG0005','15-Jun-2021','Recruitment of Aircraft Ground Handling Agent','Monster');
+INSERT INTO advertisement_details VALUES ('JD0275','AG0006','16-Jul-2021','Recruitment of Airline Operations Coordinator','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0276','AG0007','17-Jul-2021','Recruitment of Flight Dispatcher','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0277','AG0008','18-Aug-2021','Recruitment of Airport Duty Manager','Monster');
+INSERT INTO advertisement_details VALUES ('JD0278','AG0009','19-Aug-2021','Recruitment of Airline Revenue Analyst','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0279','AG0010','20-Sep-2021','Recruitment of Cabin Crew Trainer', 'Indeed');
+INSERT INTO advertisement_details VALUES ('JD0280','AG0001','21-Sep-2021','Recruitment of Airport Operations Supervisor','Monster');
+INSERT INTO advertisement_details VALUES ('JD0281','AG0002','22-Oct-2021','Recruitment of Flight Operations Coordinator','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0282','AG0003','23-Oct-2021','Recruitment of Inflight Services Manager','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0283','AG0004','24-Jan-2022','Recruitment of Aircraft Inspector','Monster');
+INSERT INTO advertisement_details VALUES ('JD0284','AG0005','25-Jan-2022','Recruitment of Airline Sales Representative','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0285','AG0006','26-Feb-2022','Recruitment of Aircraft Ground Handling Agent','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0286','AG0007','27-Feb-2022','Recruitment of Airline Operations Coordinator','Monster');
+INSERT INTO advertisement_details VALUES ('JD0287','AG0008','28-Mar-2022','Recruitment of Flight Dispatcher','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0288','AG0009','29-Mar-2022','Recruitment of Airport Duty Manager','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0289','AG0010','30-Apr-2022','Recruitment of Airline Revenue Analyst','Monster');
+INSERT INTO advertisement_details VALUES ('JD0290','AG0001','30-Apr-2022','Recruitment of Cabin Crew Trainer','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0291','AG0002','01-May-2022','Recruitment of Airport Operations Supervisor','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0292','AG0003','02-May-2022','Recruitment of Flight Operations Coordinator','Monster');
+INSERT INTO advertisement_details VALUES ('JD0293','AG0004','03-Jun-2022','Recruitment of Inflight Services Manager','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0294','AG0005','04-Jun-2022','Recruitment of Aircraft Inspector','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0295','AG0006','05-Jul-2022','Recruitment of Airline Sales Representative','Monster');
+INSERT INTO advertisement_details VALUES ('JD0296','AG0007','06-Jul-2022','Recruitment of Aircraft Ground Handling Agent','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0297','AG0008','07-Aug-2022','Recruitment of Airline Operations Coordinator','Indeed');
+INSERT INTO advertisement_details VALUES ('JD0298','AG0009','08-Oct-2022','Recruitment of Flight Dispatcher','Monster');
+INSERT INTO advertisement_details VALUES ('JD0299','AG0010','09-Nov-2022','Recruitment of Airport Duty Manager','LinkedIn');
+INSERT INTO advertisement_details VALUES ('JD0300','AG0001','10-Dec-2022','Recruitment of Airline Revenue Analyst','Indeed');
+
+/*candidates*/
+insert into Candidates values ('C0001','Ang Yu Hong','m','Sales Consultant',3000.00,'JD0001');
+insert into Candidates values ('C0002','Tam Jun Hong','m','Finance Director',4500.00,'JD0002');
+insert into Candidates values ('C0003','Kok Wei Kang','m','Records Clerk',2000.00,'JD0003');
+insert into Candidates values ('C0004','Chong Kai Xiang','m','Finance clerk',3000.00,'JD0004');
+insert into Candidates values ('C0005','Eric Lim Yu Hong','m','Collection Agent',3500.00,'JD0005');
+insert into Candidates values ('C0006','Tog Guan Hee','m','Legal Secretary',5000.00,'JD0006');
+insert into Candidates values ('C0007','Foo Kai Xun','m','Marketing Coordinator',2500.00,'JD0007');
+insert into Candidates values ('C0008','June Paw Jia Ying','f','Sales Representative',5500.00,'JD0008');
+insert into Candidates values ('C0009','Tan Yin Hui','f','Financial Analyst',5000.00,'JD0009');
+insert into Candidates values ('C0010','Chua Meng Feng','m','Marketing Assistant',5500.00,'JD0010');
+insert into Candidates values ('C0011','Chew Zhi Qian','f','Operations Supervisor',5000.00,'JD0011');
+insert into Candidates values ('C0012','Toh Wee Kiat','m','Marketing Coordinator',6500.00, 'JD0012');
+insert into Candidates values ('C0013','Lee Xing Cheng','m','Finance Manager',5500.00, 'JD0013');
+insert into Candidates values ('C0014','Poh Yen Zi','f','Public Relations Officer',4000.00, 'JD0014');
+insert into Candidates values ('C0015','Chan Shu Yi','f','Security Officer',3500.00, 'JD0015');
+insert into Candidates values ('C0016','Lo Xiang Hui','m','Purchasing Agent',6500.00, 'JD0016');
+insert into Candidates values ('C0017','Teh Fui Feng','f','Airport Duty Manager',3000.00, 'JD0017');
+insert into Candidates values ('C0018','Neo Yan Xi','f','Cabin Crew',5500.00, 'JD0018');
+insert into Candidates values ('C0019','Lau Chong Jie','m','Cabin Crew',4500.00, 'JD0019');
+insert into Candidates values ('C0020','Ong Wei Jin','f','Flight Attendant',3500.00, 'JD0020');
+insert into Candidates values ('C0021','Koh Chia Haw','f','Maintenance Technician',3900.00, 'JD0021');
+insert into Candidates values ('C0022','Lim Yu Zheng','m','HR Coordinator',2800.00, 'JD0022');
+insert into Candidates values ('C0023','Chua Ting Yi','f','Operations Manager',3500.00, 'JD0023');
+insert into Candidates values ('C0024','Sia Cheng Xi','f','Marketing Manager',3000.00, 'JD0024');
+insert into Candidates values ('C0025','Tan Jian Xiu','m','Finance Analyst',4200.00, 'JD0025');
+insert into Candidates values ('C0026','Lee Yan Yuan','f','Public Relations Manager',3500.00, 'JD0026');
+insert into Candidates values ('C0027','Lim Kah Zun','m','Supply Chain Analyst',2700.00, 'JD0027');
+insert into Candidates values ('C0028','Chua Jun Quan','f','Airport Operations Manager',3500.00, 'JD0028');
+insert into Candidates values ('C0029','Lee Hao Zheng','m','Aircraft Maintenance Engineer',2900.00, 'JD0029');
+insert into Candidates values ('C0030','Er Ken Sern','f','Reservation Agent',3500.00, 'JD0030');
+insert into Candidates values ('C0031','Own Wu Jie','f','IT Manager',3400.00, 'JD0031');
+insert into Candidates values ('C0032','Goh Jun Yu','m','Baggage Handler',3500.00, 'JD0032');
+insert into Candidates values ('C0033','Lee Han Xiang','f','In-flight Service Manager',5500.00, 'JD0033');
+insert into Candidates values ('C0034','Bay Jia Jun','m','First Officer',5500.00, 'JD0034');
+insert into Candidates values ('C0035','Goh Yu Ye','f','Operations Coordinator',3800.00, 'JD0035');
+insert into Candidates values ('C0036','Sia Zhong Cheng','f','Flight Instructor',5500.00, 'JD0036');
+insert into Candidates values ('C0037','Gan Ren Sen','f','Cargo Operations Manager',3500.00, 'JD0037');
+insert into Candidates values ('C0038','Tan Jia Hong','f','Ground Operations Agent',4200.00, 'JD0038');
+insert into Candidates values ('C0039','Teo Wei Qi','f','Ticketing Agent',2900.00, 'JD0039');
+insert into Candidates values ('C0040','Ngo Ping Han','m','Customer Service Representative',5500.00, 'JD0040');
+insert into Candidates values ('C0041','Lim Fang Lian','m','HR Assistant',5200.00, 'JD0041');
+insert into Candidates values ('C0042','Yu Yi Jie','m','Operations Analyst',3500.00, 'JD0042');
+insert into Candidates values ('C0043','Tam Seng Wee','m','IT Support Specialist',2900.00, 'JD0043');
+insert into Candidates values ('C0044','Teh Zi Jian','m','Public Relations Coordinator',4000.00, 'JD0044');
+insert into Candidates values ('C0045','Lim Xhin','f','Travel Consultant',2500.00, 'JD0045');
+insert into Candidates values ('C0046','Leng Zhi Ying','f','In-flight Catering Manager',5000.00, 'JD0046');
+insert into Candidates values ('C0047','Chua Jia Xiang','f','Chief Pilot',5400.00, 'JD0047');
+insert into Candidates values ('C0048','Lee Hong Jun','m','Senior Cabin Crew',3500.00, 'JD0048');
+insert into Candidates values ('C0049','Sia Wen Yang','f','Logistics Manager',5500.00, 'JD0049');
+insert into Candidates values ('C0050','Lim Cher Aik','f','Ramp Agent',3600.00, 'JD0050');
+insert into Candidates values ('C0051','Tan Jia Xun','f','Operations Planner',2500.00, 'JD0051');
+insert into Candidates values ('C0052','Heng Kai Jin','f','Customer Service Supervisor',3200.00, 'JD0052');
+insert into Candidates values ('C0053','Ng Chong Kiat','m','Aircraft Maintenance Technician',3100.00, 'JD0053');
+insert into Candidates values ('C0054','Lau Keng Kiat','m','Flight Dispatcher',3500.00, 'JD0054');
+insert into Candidates values ('C0055','Yeo Dun Sheng','m','Supply Chain Analyst',5800.00, 'JD0055');
+insert into Candidates values ('C0056','Sia Jun Hua','m','Reservation Agent',3500.00, 'JD0056');
+insert into Candidates values ('C0057','Fang Kai Xian','f','Flight Attendant',2500.00, 'JD0057');
+insert into Candidates values ('C0058','Chua Zheng Yu','f','First Officer',3500.00, 'JD0058');
+insert into Candidates values ('C0059','Foo Yee Soon','m','Baggage Handler',3500.00, 'JD0059');
+insert into Candidates values ('C0060','Lim Cheng Da','f','Aircraft Maintenance Technician',4500.00, 'JD0060');
+insert into Candidates values ('C0061','Keh Zhe Xu','f','Network Administrator',4500.00, 'JD0061');
+insert into Candidates values ('C0062','Lau Kar Thong','m','Call Center Agent',5500.00, 'JD0062');
+insert into Candidates values ('C0063','Tee Jin Ern','m','HR Coordinator',5500.00, 'JD0063');
+insert into Candidates values ('C0064','Chua Zuo Jun','m','Flight Instructor',3500.00, 'JD0064');
+insert into Candidates values ('C0065','Tan Zi Xuen','f','Cabin Crew',3500.00, 'JD0065');
+insert into Candidates values ('C0066','Tay Wei Jun','f','Procurement Specialist',3400.00, 'JD0066');
+insert into Candidates values ('C0067','Wong Kah Yun','f','Aircraft Cleaner',4500.00, 'JD0067');
+insert into Candidates values ('C0068','Tan Xing Yong','m','Flight Operations Analyst',4500.00, 'JD0068');
+insert into Candidates values ('C0069','Lee Koek Lean','f','Travel Coordinator',6500.00, 'JD0069');
+insert into Candidates values ('C0070','Quek Pan Hui','f','Customer Service Team Lead',4500.00, 'JD0070');
+insert into Candidates values ('C0071','Lim Shi Kai','m','Airline Operations Coordinator',4500.00, 'JD0071');
+insert into Candidates values ('C0072','See Xun','f','Flight Attendant',5500.00, 'JD0072');
+insert into Candidates values ('C0073','Lim Yu Qiang','f','Operations Manager',3500.00, 'JD0073');
+insert into Candidates values ('C0074','Sim Chun Hui','f','Supply Chain Coordinator',3400.00, 'JD0074');
+insert into Candidates values ('C0075','Sia How Kee','m','Pilot Trainer',2500.00, 'JD0075');
+insert into Candidates values ('C0076','Ng Swan Ru','f','Ticketing Agent',5500.00, 'JD0076');
+insert into Candidates values ('C0077','Quek Jia Jun','m','Ground Services Supervisor',2900.00, 'JD0077');
+insert into Candidates values ('C0078','Lim Dong Tian','m','IT Manager',5500.00, 'JD0078');
+insert into Candidates values ('C0079','Lau Cheng Jia','m','Customer Service Representative',3500.00, 'JD0079');
+insert into Candidates values ('C0080','Tee Kai Yao','f','HR Manager',5000.00, 'JD0080');
+insert into Candidates values ('C0081','Lim Dong Hai','m','First Officer',5600.00, 'JD0081');
+insert into Candidates values ('C0082','Chong Ming Han','m','Cabin Crew',5500.00, 'JD0082');
+insert into Candidates values ('C0083','Yan Hao Cheng','m','Logistics Coordinator',3500.00, 'JD0083');
+insert into Candidates values ('C0084','Tieu Qi En','m','Ramp Agent',3500.00, 'JD0084');
+insert into Candidates values ('C0085','Lee Tian Le','f','Flight Operations Analyst',3500.00, 'JD0085');
+insert into Candidates values ('C0086','Lee Xin Yee','f','Travel Consultant',3500.00, 'JD0086');
+insert into Candidates values ('C0087','Chan Su Feng','f','Call Center Supervisor',5500.00 ,'JD0087');
+insert into Candidates values ('C0088','Lee guan How','m','Captain',3500.00, 'JD0088');
+insert into Candidates values ('C0089','Siow Zhen You','f','Reservation Supervisor',5500.00, 'JD0089');
+insert into Candidates values ('C0090','Tiow Kai Bo','f','Inflight Services Manager',5600.00, 'JD0090');
+insert into Candidates values ('C0091','Tieu Jian Li','f','Aircraft Cleaner',3500.00, 'JD0091');
+insert into Candidates values ('C0092','Tay Jing Han','f','Travel Coordinator',3500.00, 'JD0092');
+insert into Candidates values ('C0093','Goh Zi Yang','m','Reservation Agent',5500.00, 'JD0093');
+insert into Candidates values ('C0094','Gan Jing Yang','m','Airline Operations Coordinator',3500.00, 'JD0094');
+insert into Candidates values ('C0095','Chua Zhen Pang','m','Chief Pilot',3500.00, 'JD0095');
+insert into Candidates values ('C0096','Lui Wei Jie','m','Cargo Agent',3500.00, 'JD0096');
+insert into Candidates values ('C0097','Liu Hui Qing','f','Baggage Handler',6500.00, 'JD0097');
+insert into Candidates values ('C0098','Lim Gan Shi','f','Database Administrator',3500.00, 'JD0098');
+insert into Candidates values ('C0099','Goh Wei Bing','m','Flight Dispatcher',3500.00, 'JD0099');
+insert into Candidates values ('C0100','Ho Gwee Hui','f','Inflight Supervisor',5500.00, 'JD0100');
+
+/*offer letter*/
+insert into offer_letter values('L0001','STFF001','Cooper','28-DEC-2016','Australia');
+insert into offer_letter values('L0002','STFF002','Marena','18-APR-2016','Japan');
+insert into offer_letter values('L0003','STFF003','Cynthie','11-DEC-2016','Malaysia');
+insert into offer_letter values('L0004','STFF004','Lotti','09-MAR-2016','North Korea');
+insert into offer_letter values('L0005','STFF005','Chicky','17-FEB-2016','Malaysia');
+insert into offer_letter values('L0006','STFF006','Anjela','29-NOV-2016','china');
+insert into offer_letter values('L0007','STFF007','Aile','03-DEC-2016','china');
+insert into offer_letter values('L0008','STFF008','Royall','20-MAY-2016','china');
+insert into offer_letter values('L0009','STFF009','Emmey','28-DEC-2016','Malaysia');
+insert into offer_letter values('L0010','STFF010','Heinrik','29-OCT-2016','Vietnam');
+INSERT INTO offer_letter VALUES ('L0011', 'STFF011', 'John', '10-JAN-2016', 'United States');
+INSERT INTO offer_letter VALUES ('L0012', 'STFF012', 'Jane', '12-FEB-2016', 'Canada');
+INSERT INTO offer_letter VALUES ('L0013', 'STFF013', 'Michael', '15-MAR-2017', 'United Kingdom');
+INSERT INTO offer_letter VALUES ('L0014', 'STFF014', 'Sophia', '18-APR-2017', 'France');
+INSERT INTO offer_letter VALUES ('L0015', 'STFF015', 'Alexander', '21-MAY-2017', 'Germany');
+INSERT INTO offer_letter VALUES ('L0016', 'STFF016', 'Olivia', '24-JUN-2017', 'Brazil');
+INSERT INTO offer_letter VALUES ('L0017', 'STFF017', 'William', '27-JUL-2017', 'Australia');
+INSERT INTO offer_letter VALUES ('L0018', 'STFF018', 'Emily', '30-AUG-2017', 'Japan');
+INSERT INTO offer_letter VALUES ('L0019', 'STFF019', 'James', '02-OCT-2017', 'Malaysia');
+INSERT INTO offer_letter VALUES ('L0020', 'STFF020', 'Isabella', '05-NOV-2017', 'North Korea');
+INSERT INTO offer_letter VALUES ('L0021', 'STFF021', 'Benjamin', '08-DEC-2017', 'China');
+INSERT INTO offer_letter VALUES ('L0022', 'STFF022', 'Sophia', '11-JAN-2017', 'China');
+INSERT INTO offer_letter VALUES ('L0023', 'STFF023', 'Joseph', '14-FEB-2017', 'China');
+INSERT INTO offer_letter VALUES ('L0024', 'STFF024', 'Mia', '17-MAR-2017', 'Malaysia');
+INSERT INTO offer_letter VALUES ('L0025', 'STFF025', 'Henry', '20-APR-2017', 'India');
+INSERT INTO offer_letter VALUES ('L0026', 'STFF026', 'Ella', '23-MAY-2017', 'Japan');
+INSERT INTO offer_letter VALUES ('L0027', 'STFF027', 'Alexander', '26-JUN-2017', 'United States');
+INSERT INTO offer_letter VALUES ('L0028', 'STFF028', 'Grace', '29-JUL-2017', 'United Kingdom');
+INSERT INTO offer_letter VALUES ('L0029', 'STFF029', 'Daniel', '01-SEP-2017', 'France');
+INSERT INTO offer_letter VALUES ('L0030', 'STFF030', 'Ava', '04-OCT-2018', 'Canada');
+INSERT INTO offer_letter VALUES ('L0031', 'STFF031', 'Liam', '07-NOV-2018', 'Australia');
+INSERT INTO offer_letter VALUES ('L0032', 'STFF032', 'Harper', '10-DEC-2018', 'Brazil');
+INSERT INTO offer_letter VALUES ('L0033', 'STFF033', 'Samuel', '13-JAN-2018', 'China');
+INSERT INTO offer_letter VALUES ('L0034', 'STFF034', 'Lily', '16-FEB-2018', 'India');
+INSERT INTO offer_letter VALUES ('L0035', 'STFF035', 'David', '19-MAR-2018', 'Malaysia');
+INSERT INTO offer_letter VALUES ('L0036', 'STFF036', 'Zoe', '22-APR-2018', 'North Korea');
+INSERT INTO offer_letter VALUES ('L0037', 'STFF037', 'Lucas', '25-MAY-2018', 'United States');
+INSERT INTO offer_letter VALUES ('L0038', 'STFF038', 'Grace', '28-JUN-2019', 'United Kingdom');
+INSERT INTO offer_letter VALUES ('L0039', 'STFF039', 'Jackson', '01-AUG-2019', 'France');
+INSERT INTO offer_letter VALUES ('L0040', 'STFF040', 'Chloe', '04-SEP-2019', 'Canada');
+INSERT INTO offer_letter VALUES ('L0041', 'STFF041', 'Sophia', '07-OCT-2019', 'Japan');
+INSERT INTO offer_letter VALUES ('L0042', 'STFF042', 'Lucas', '10-NOV-2019', 'Malaysia');
+INSERT INTO offer_letter VALUES ('L0043', 'STFF043', 'Emma', '13-DEC-2019', 'China');
+INSERT INTO offer_letter VALUES ('L0044', 'STFF044', 'Henry', '16-JAN-2019', 'India');
+INSERT INTO offer_letter VALUES ('L0045', 'STFF045', 'Olivia', '19-FEB-2019', 'United States');
+INSERT INTO offer_letter VALUES ('L0046', 'STFF046', 'Sebastian', '22-MAR-2019', 'France');
+INSERT INTO offer_letter VALUES ('L0047', 'STFF047', 'Elizabeth', '25-APR-2019', 'Brazil');
+INSERT INTO offer_letter VALUES ('L0048', 'STFF048', 'Ethan', '28-MAY-2019', 'Australia');
+INSERT INTO offer_letter VALUES ('L0049', 'STFF049', 'Avery', '31-JUL-2019', 'Japan');
+INSERT INTO offer_letter VALUES ('L0050', 'STFF050', 'Daniel', '03-SEP-2019', 'United Kingdom');
+INSERT INTO offer_letter VALUES ('L0051', 'STFF051', 'Sophia', '06-OCT-2019', 'Malaysia');
+INSERT INTO offer_letter VALUES ('L0052', 'STFF052', 'Jackson', '09-NOV-2019', 'North Korea');
+INSERT INTO offer_letter VALUES ('L0053', 'STFF053', 'Emma', '12-DEC-2020', 'India');
+INSERT INTO offer_letter VALUES ('L0054', 'STFF054', 'Henry', '15-JAN-2020', 'Brazil');
+INSERT INTO offer_letter VALUES ('L0055', 'STFF055', 'Olivia', '18-FEB-2020', 'France');
+INSERT INTO offer_letter VALUES ('L0056', 'STFF056', 'Sebastian', '21-MAR-2020', 'United States');
+INSERT INTO offer_letter VALUES ('L0057', 'STFF057', 'Elizabeth', '24-APR-2020', 'Canada');
+INSERT INTO offer_letter VALUES ('L0058', 'STFF058', 'Ethan', '27-MAY-2020', 'Japan');
+INSERT INTO offer_letter VALUES ('L0059', 'STFF059', 'Avery', '30-JUN-2020', 'Australia');
+INSERT INTO offer_letter VALUES ('L0060', 'STFF060', 'Daniel', '03-AUG-2020', 'China');
+INSERT INTO offer_letter VALUES ('L0061', 'STFF061', 'Liam', '06-SEP-2020', 'Malaysia');
+INSERT INTO offer_letter VALUES ('L0062', 'STFF062', 'Harper', '09-OCT-2020', 'India');
+INSERT INTO offer_letter VALUES ('L0063', 'STFF063', 'Samuel', '12-NOV-2020', 'United Kingdom');
+INSERT INTO offer_letter VALUES ('L0064', 'STFF064', 'Lily', '15-DEC-2020', 'France');
+INSERT INTO offer_letter VALUES ('L0065', 'STFF065', 'David', '18-JAN-2021', 'Japan');
+INSERT INTO offer_letter VALUES ('L0066', 'STFF066', 'Zoe', '21-FEB-2021', 'China');
+INSERT INTO offer_letter VALUES ('L0067', 'STFF067', 'Lucas', '24-MAR-2021', 'North Korea');
+INSERT INTO offer_letter VALUES ('L0068', 'STFF068', 'Grace', '27-APR-2021', 'Australia');
+INSERT INTO offer_letter VALUES ('L0069', 'STFF069', 'Jackson', '30-MAY-2021', 'Canada');
+INSERT INTO offer_letter VALUES ('L0070', 'STFF070', 'Sophia', '02-JUL-2021', 'United States');
+INSERT INTO offer_letter VALUES ('L0071', 'STFF071', 'Emma', '05-AUG-2021', 'Brazil');
+INSERT INTO offer_letter VALUES ('L0072', 'STFF072', 'Henry', '08-SEP-2021', 'France');
+INSERT INTO offer_letter VALUES ('L0073', 'STFF073', 'Olivia', '11-OCT-2021', 'United Kingdom');
+INSERT INTO offer_letter VALUES ('L0074', 'STFF074', 'Sebastian', '14-NOV-2021', 'Malaysia');
+INSERT INTO offer_letter VALUES ('L0075', 'STFF075', 'David', '20-JAN-2021', 'Japan');
+INSERT INTO offer_letter VALUES ('L0076', 'STFF076', 'Liam', '23-FEB-2021', 'China');
+INSERT INTO offer_letter VALUES ('L0077', 'STFF077', 'Harper', '26-MAR-2021', 'France');
+INSERT INTO offer_letter VALUES ('L0078', 'STFF078', 'Samuel', '29-APR-2021', 'North Korea');
+INSERT INTO offer_letter VALUES ('L0079', 'STFF079', 'Lily', '02-JUN-2021', 'India');
+INSERT INTO offer_letter VALUES ('L0080', 'STFF080', 'Daniel', '05-JUL-2022', 'United States');
+INSERT INTO offer_letter VALUES ('L0081', 'STFF081', 'Lucas', '08-AUG-2022', 'United Kingdom');
+INSERT INTO offer_letter VALUES ('L0082', 'STFF082', 'Grace', '11-SEP-2022', 'Canada');
+INSERT INTO offer_letter VALUES ('L0083', 'STFF083', 'Jackson', '14-OCT-2022', 'Brazil');
+INSERT INTO offer_letter VALUES ('L0084', 'STFF084', 'Sophia', '17-NOV-2022', 'Australia');
+INSERT INTO offer_letter VALUES ('L0085', 'STFF085', 'Emma', '20-DEC-2022', 'Malaysia');
+INSERT INTO offer_letter VALUES ('L0086', 'STFF086', 'Henry', '23-JAN-2022', 'France');
+INSERT INTO offer_letter VALUES ('L0087', 'STFF087', 'Olivia', '26-FEB-2022', 'Japan');
+INSERT INTO offer_letter VALUES ('L0088', 'STFF088', 'Sebastian', '01-APR-2022', 'China');
+INSERT INTO offer_letter VALUES ('L0089', 'STFF089', 'Elizabeth', '04-MAY-2022', 'India');
+INSERT INTO offer_letter VALUES ('L0090', 'STFF090', 'David', '07-JUN-2022', 'Australia');
+INSERT INTO offer_letter VALUES ('L0091', 'STFF091', 'Liam', '10-JUL-2022', 'United States');
+INSERT INTO offer_letter VALUES ('L0092', 'STFF092', 'Harper', '13-AUG-2022', 'United Kingdom');
+INSERT INTO offer_letter VALUES ('L0093', 'STFF093', 'Samuel', '16-SEP-2022', 'Canada');
+INSERT INTO offer_letter VALUES ('L0094', 'STFF094', 'Lily', '19-OCT-2022', 'Brazil');
+INSERT INTO offer_letter VALUES ('L0095', 'STFF095', 'Daniel', '22-NOV-2022', 'France');
+INSERT INTO offer_letter VALUES ('L0096', 'STFF096', 'Lucas', '25-DEC-2022', 'Malaysia');
+INSERT INTO offer_letter VALUES ('L0097', 'STFF097', 'Grace', '28-JAN-2022', 'Japan');
+INSERT INTO offer_letter VALUES ('L0098', 'STFF098', 'Jackson', '31-JAN-2022', 'China');
+INSERT INTO offer_letter VALUES ('L0099', 'STFF099', 'Sophia', '03-FEB-2022', 'United States');
+INSERT INTO offer_letter VALUES ('L0100', 'STFF100', 'Emma', '06-MAR-2022', 'United Kingdom');
+
+/*interview*/
+insert into interview values('I0001','Christina','22-JAN-2023','attend','Support','C0001','TA1001');
+insert into interview values('I0002','Alonzo','04-FEB-1999','absent','Services','C0002','TA2002');
+insert into interview values('I0003','Averell','08-MAR-2011','attend','Sales','C0003','TA1001');
+insert into interview values('I0004','Mallorie','19-JUN-2013','attend','HR','C0004','TA1001');
+insert into interview values('I0005','Oliviero','28-MAY-1987','absent','HR','C0005','TA1001');
+insert into interview values('I0006','Ronda','23-JAN-1977','attend','HR','C0006','TA1001');
+insert into interview values('I0007','Alta','29-DEC-1976','absent','Sales','C0007','TA1001');
+insert into interview values('I0008','Hanny','07-OCT-1899','attend','Sales','C0008','TA1001');
+insert into interview values('I0009','Ruby','21-JAN-2020','absent','HR','C0009','TA1001');
+insert into interview values('I0010','Jessamine','01-APR-2017','attend','Sales','C0010','TA1001');
+INSERT INTO interview VALUES ('I0011', 'Isabella', '18-FEB-2016', 'attend', 'Services', 'C0011', 'TA1001');
+INSERT INTO interview VALUES ('I0012', 'James', '28-MAR-2017', 'absent', 'Support', 'C0012', 'TA2002');
+INSERT INTO interview VALUES ('I0013', 'Emma', '11-APR-2018', 'attend', 'Services', 'C0013', 'TA1001');
+INSERT INTO interview VALUES ('I0014', 'Elijah', '15-JAN-2023', 'absent', 'Support', 'C0014', 'TA2002');
+INSERT INTO interview VALUES ('I0015', 'Mia', '22-MAY-2019', 'attend', 'Services', 'C0015', 'TA1001');
+INSERT INTO interview VALUES ('I0016', 'Benjamin', '30-JUN-2020', 'absent', 'Support', 'C0016', 'TA2002');
+INSERT INTO interview VALUES ('I0017', 'Charlotte', '12-MAR-2011', 'attend', 'Services', 'C0017', 'TA1001');
+INSERT INTO interview VALUES ('I0018', 'Lucas', '04-AUG-2015', 'absent', 'Support', 'C0018', 'TA2002');
+INSERT INTO interview VALUES ('I0019', 'Harper', '28-SEP-2018', 'attend', 'Services', 'C0019', 'TA1001');
+INSERT INTO interview VALUES ('I0020', 'Alexander', '10-JUL-2019', 'absent', 'Support', 'C0020', 'TA2002');
+INSERT INTO interview VALUES ('I0021', 'Grace', '14-MAY-2017', 'attend', 'Services', 'C0021', 'TA1001');
+INSERT INTO interview VALUES ('I0022', 'Henry', '22-APR-2018', 'absent', 'Support', 'C0022', 'TA2002');
+INSERT INTO interview VALUES ('I0023', 'Sophia', '08-MAR-2011', 'attend', 'Services', 'C0023', 'TA1001');
+INSERT INTO interview VALUES ('I0024', 'Sebastian', '20-JAN-2023', 'absent', 'Support', 'C0024', 'TA2002');
+INSERT INTO interview VALUES ('I0025', 'Zoe', '02-JUL-2016', 'attend', 'Services', 'C0025', 'TA1001');
+INSERT INTO interview VALUES ('I0026', 'Jack', '11-JUN-2020', 'absent', 'Support', 'C0026', 'TA2002');
+INSERT INTO interview VALUES ('I0027', 'Liam', '18-JAN-2017', 'attend', 'Services', 'C0027', 'TA1001');
+INSERT INTO interview VALUES ('I0028', 'Jackson', '25-SEP-2018', 'absent', 'Support', 'C0028', 'TA2002');
+INSERT INTO interview VALUES ('I0029', 'Natalie', '08-MAR-2011', 'attend', 'Services', 'C0029', 'TA1001');
+INSERT INTO interview VALUES ('I0030', 'Samuel', '11-JUN-2020', 'absent', 'Support', 'C0030', 'TA2002');
+INSERT INTO interview VALUES ('I0031', 'Charlotte', '18-JAN-2017', 'attend', 'Services', 'C0031', 'TA1001');
+INSERT INTO interview VALUES ('I0032', 'Grace', '25-SEP-2018', 'absent', 'Support', 'C0032', 'TA2002');
+INSERT INTO interview VALUES ('I0033', 'Lucas', '08-MAR-2011', 'attend', 'Services', 'C0033', 'TA1001');
+INSERT INTO interview VALUES ('I0034', 'Liam', '20-JAN-2023', 'absent', 'Support', 'C0034', 'TA2002');
+INSERT INTO interview VALUES ('I0035', 'Ella', '02-JUL-2016', 'attend', 'Services', 'C0035', 'TA1001');
+INSERT INTO interview VALUES ('I0036', 'Madelyn', '11-JUN-2020', 'absent', 'Support', 'C0036', 'TA2002');
+INSERT INTO interview VALUES ('I0037', 'Oliver', '18-JAN-2017', 'attend', 'Services', 'C0037', 'TA1001');
+INSERT INTO interview VALUES ('I0038', 'Carter', '25-SEP-2018', 'absent', 'Support', 'C0038', 'TA2002');
+INSERT INTO interview VALUES ('I0039', 'Elizabeth', '08-MAR-2011', 'attend', 'Services', 'C0039', 'TA1001');
+INSERT INTO interview VALUES ('I0040', 'Daniel', '20-JAN-2023', 'absent', 'Support', 'C0040', 'TA2002');
+INSERT INTO interview VALUES ('I0041', 'Avery', '02-JUL-2016', 'attend', 'Services', 'C0041', 'TA1001');
+INSERT INTO interview VALUES ('I0042', 'Emily', '11-JUN-2020', 'absent', 'Support', 'C0042', 'TA2002');
+INSERT INTO interview VALUES ('I0043', 'Michael', '18-JAN-2017', 'attend', 'Services', 'C0043', 'TA1001');
+INSERT INTO interview VALUES ('I0044', 'Zoe', '25-SEP-2018', 'absent', 'Support', 'C0044', 'TA2002');
+INSERT INTO interview VALUES ('I0045', 'Henry', '08-MAR-2011', 'attend', 'Services', 'C0045', 'TA1001');
+INSERT INTO interview VALUES ('I0046', 'Harper', '20-JAN-2023', 'absent', 'Support', 'C0046', 'TA2002');
+INSERT INTO interview VALUES ('I0047', 'Jackson', '02-JUL-2016', 'attend', 'Services', 'C0047', 'TA1001');
+INSERT INTO interview VALUES ('I0048', 'Sofia', '11-JUN-2020', 'absent', 'Support', 'C0048', 'TA2002');
+INSERT INTO interview VALUES ('I0049', 'Ava', '18-JAN-2017', 'attend', 'Services', 'C0049', 'TA1001');
+INSERT INTO interview VALUES ('I0050', 'James', '25-SEP-2018', 'absent', 'Support', 'C0050', 'TA2002');
+INSERT INTO interview VALUES ('I0051', 'Abigail', '08-MAR-2011', 'attend', 'Services', 'C0051', 'TA1001');
+INSERT INTO interview VALUES ('I0052', 'Ethan', '20-JAN-2023', 'absent', 'Support', 'C0052', 'TA2002');
+INSERT INTO interview VALUES ('I0053', 'Mia', '02-JUL-2016', 'attend', 'Services', 'C0053', 'TA1001');
+INSERT INTO interview VALUES ('I0054', 'Benjamin', '11-JUN-2020', 'absent', 'Support', 'C0054', 'TA2002');
+INSERT INTO interview VALUES ('I0055', 'Scarlett', '18-JAN-2017', 'attend', 'Services', 'C0055', 'TA1001');
+INSERT INTO interview VALUES ('I0056', 'Alexander', '25-SEP-2018', 'absent', 'Support', 'C0056', 'TA2002');
+INSERT INTO interview VALUES ('I0057', 'David', '08-MAR-2011', 'attend', 'Services', 'C0057', 'TA1001');
+INSERT INTO interview VALUES ('I0058', 'Sebastian', '20-JAN-2023', 'absent', 'Support', 'C0058', 'TA2002');
+INSERT INTO interview VALUES ('I0059', 'Victoria', '02-JUL-2016', 'attend', 'Services', 'C0059', 'TA1001');
+INSERT INTO interview VALUES ('I0060', 'Gabriel', '11-JUN-2020', 'absent', 'Support', 'C0060', 'TA2002');
+INSERT INTO interview VALUES ('I0061', 'Sophia', '18-JAN-2017', 'attend', 'Services', 'C0061', 'TA1001');
+INSERT INTO interview VALUES ('I0062', 'Lucas', '25-SEP-2018', 'absent', 'Support', 'C0062', 'TA2002');
+INSERT INTO interview VALUES ('I0063', 'Madelyn', '08-MAR-2011', 'attend', 'Services', 'C0063', 'TA1001');
+INSERT INTO interview VALUES ('I0064', 'Jackson', '20-JAN-2023', 'absent', 'Support', 'C0064', 'TA2002');
+INSERT INTO interview VALUES ('I0065', 'Aria', '02-JUL-2016', 'attend', 'Services', 'C0065', 'TA1001');
+INSERT INTO interview VALUES ('I0066', 'John', '11-JUN-2020', 'absent', 'Support', 'C0066', 'TA2002');
+INSERT INTO interview VALUES ('I0067', 'Ella', '18-JAN-2017', 'attend', 'Services', 'C0067', 'TA1001');
+INSERT INTO interview VALUES ('I0068', 'Oliver', '25-SEP-2018', 'absent', 'Support', 'C0068', 'TA2002');
+INSERT INTO interview VALUES ('I0069', 'Grace', '08-MAR-2011', 'attend', 'Services', 'C0069', 'TA1001');
+INSERT INTO interview VALUES ('I0070', 'Samuel', '20-JAN-2023', 'absent', 'Support', 'C0070', 'TA2002');
+INSERT INTO interview VALUES ('I0071', 'Emily', '02-JUL-2016', 'attend', 'Services', 'C0071', 'TA1001');
+INSERT INTO interview VALUES ('I0072', 'Daniel', '11-JUN-2020', 'absent', 'Support', 'C0072', 'TA2002');
+INSERT INTO interview VALUES ('I0073', 'Luke', '18-JAN-2017', 'attend', 'Services', 'C0073', 'TA1001');
+INSERT INTO interview VALUES ('I0074', 'Henry', '25-SEP-2018', 'absent', 'Support', 'C0074', 'TA2002');
+INSERT INTO interview VALUES ('I0075', 'Chloe', '08-MAR-2011', 'attend', 'Services', 'C0075', 'TA1001');
+INSERT INTO interview VALUES ('I0076', 'Christopher', '20-JAN-2023', 'absent', 'Support', 'C0076', 'TA2002');
+INSERT INTO interview VALUES ('I0077', 'Grace', '02-JUL-2016', 'attend', 'Services', 'C0077', 'TA1001');
+INSERT INTO interview VALUES ('I0078', 'Isaac', '11-JUN-2020', 'absent', 'Support', 'C0078', 'TA2002');
+INSERT INTO interview VALUES ('I0079', 'Zoey', '18-JAN-2017', 'attend', 'Services', 'C0079', 'TA1001');
+INSERT INTO interview VALUES ('I0080', 'Nathan', '08-MAR-2011', 'attend', 'Services', 'C0080', 'TA1001');
+INSERT INTO interview VALUES ('I0081', 'Harper', '20-JAN-2023', 'absent', 'Support', 'C0081', 'TA2002');
+INSERT INTO interview VALUES ('I0082', 'David', '02-JUL-2016', 'attend', 'Services', 'C0082', 'TA1001');
+INSERT INTO interview VALUES ('I0083', 'Jonathan', '11-JUN-2020', 'absent', 'Support', 'C0083', 'TA2002');
+INSERT INTO interview VALUES ('I0084', 'Victoria', '18-JAN-2017', 'attend', 'Services', 'C0084', 'TA1001');
+INSERT INTO interview VALUES ('I0085', 'Caleb', '25-SEP-2018', 'absent', 'Support', 'C0085', 'TA2002');
+INSERT INTO interview VALUES ('I0086', 'Abigail', '08-MAR-2011', 'attend', 'Services', 'C0086', 'TA1001');
+INSERT INTO interview VALUES ('I0087', 'Ryan', '20-JAN-2023', 'absent', 'Support', 'C0087', 'TA2002');
+INSERT INTO interview VALUES ('I0088', 'Julian', '02-JUL-2016', 'attend', 'Services', 'C0088', 'TA1001');
+INSERT INTO interview VALUES ('I0089', 'Isaiah', '11-JUN-2020', 'absent', 'Support', 'C0089', 'TA2002');
+INSERT INTO interview VALUES ('I0090', 'Elizabeth', '18-JAN-2017', 'attend', 'Services', 'C0090', 'TA1001');
+INSERT INTO interview VALUES ('I0091', 'Adam', '25-SEP-2018', 'absent', 'Support', 'C0091', 'TA2002');
+INSERT INTO interview VALUES ('I0092', 'Christopher', '08-MAR-2011', 'attend', 'Services', 'C0092', 'TA1001');
+INSERT INTO interview VALUES ('I0093', 'Emma', '20-JAN-2023', 'absent', 'Support', 'C0093', 'TA2002');
+INSERT INTO interview VALUES ('I0094', 'Joshua', '02-JUL-2016', 'attend', 'Services', 'C0094', 'TA1001');
+INSERT INTO interview VALUES ('I0095', 'Evelyn', '11-JUN-2020', 'absent', 'Support', 'C0095', 'TA2002');
+INSERT INTO interview VALUES ('I0096', 'Nicholas', '18-JAN-2017', 'attend', 'Services', 'C0096', 'TA1001');
+INSERT INTO interview VALUES ('I0097', 'Grace', '25-SEP-2018', 'absent', 'Support', 'C0097', 'TA2002');
+INSERT INTO interview VALUES ('I0098', 'Elijah', '08-MAR-2011', 'attend', 'Services', 'C0098', 'TA1001');
+INSERT INTO interview VALUES ('I0099', 'Olivia', '20-JAN-2023', 'absent', 'Support', 'C0099', 'TA2002');
+INSERT INTO interview VALUES ('I0100', 'Daniel', '02-JUL-2016', 'attend', 'Services', 'C0100', 'TA1001');
+
+/*resume*/
+INSERT INTO RESUME values('R_A0001','C0001','15-JAN-2022','Marketing Coordinator','Master of Business Administration',3);
+INSERT INTO RESUME values('R_A0002','C0002','27-APR-2022','Marketing Coordinator','Master of Business Administration',4);
+INSERT INTO RESUME values('R_A0003','C0003','12-APR-2022','Data Analyst','Bachelor of Mathematics',1);
+INSERT INTO RESUME values('R_A0004','C0004','04-APR-2022','Marketing Manager','Master of Business Administration',3);
+INSERT INTO RESUME values('R_A0005','C0005','22-JAN-2022','Graphic Designer','Bachelor of Fine Arts',2);
+INSERT INTO RESUME values('R_A0006','C0006','15-MAY-2022','Project Manager','Master of Science in Engineering',5);
+INSERT INTO RESUME values('R_A0007','C0007','09-FEB-2022','Sales Representative','Bachelor of Business Administration',1);
+INSERT INTO RESUME values('R_A0008','C0008','18-MAR-2022','Human Resources Specialist','Bachelor of Psychology',2);
+INSERT INTO RESUME values('R_A0009','C0009','30-APR-2022','Financial Analyst','Master of Business Administration',4);
+INSERT INTO RESUME values('R_A0010','C0010','06-JUN-2022','Web Developer','Bachelor of Science in Computer Science',2);
+INSERT INTO RESUME values('R_A0011','C0011','14-APR-2022','Customer Service Representative','Bachelor of Arts in Communication',1);
+INSERT INTO RESUME values('R_A0012','C0012','02-MAR-2022','Accountant','Bachelor of Accounting',3);
+INSERT INTO RESUME values('R_A0013','C0013','27-APR-2022','Marketing Coordinator','Bachelor of Business Administration',4);
+INSERT INTO RESUME values('R_A0014','C0014','12-MAY-2022','Data Scientist','Master of Mathematics',5);
+INSERT INTO RESUME values('R_A0015','C0015','04-FEB-2022','Product Manager','Master of Business Administration',5);
+INSERT INTO RESUME values('R_A0016','C0016','22-MAR-2022','Marketing Coordinator','Bachelor of Business Administration',1);
+INSERT INTO RESUME values('R_A0017','C0017','15-APR-2022','Graphic Artist','Bachelor of Fine Arts',2);
+INSERT INTO RESUME values('R_A0018','C0018','09-JUN-2022','IT Manager','Master of Science in Computer Science',6);
+INSERT INTO RESUME values('R_A0019','C0019','17-APR-2022','Technical Writer','Bachelor of English',1);
+INSERT INTO RESUME values('R_A0020','C0020','29-APR-2022','Data Engineer','Master of Science in Computer Science',3);
+INSERT INTO RESUME values('R_A0021','C0021','07-MAY-2022','Operations Manager','Master of Business Administration',5);
+INSERT INTO RESUME values('R_A0022','C0022','24-JUN-2022','Software Developer','Bachelor of Science in Computer Engineering',2);
+INSERT INTO RESUME values('R_A0023','C0023','11-APR-2022','Web Designer','Bachelor of Fine Arts',1);
+INSERT INTO RESUME values('R_A0024','C0024','02-JUL-2022','Human Resources Manager','Bachelor of Business Administration',4);
+INSERT INTO RESUME values('R_A0025','C0025','19-APR-2022','Financial Advisor','Master of Business Administration',5);
+INSERT INTO RESUME values('R_A0026','C0026','14-FEB-2022','Database Administrator','Master of Science in Computer Science',3);
+INSERT INTO RESUME values('R_A0027','C0027','28-MAY-2022','Sales Manager','Bachelor of Business Administration',6);
+INSERT INTO RESUME values('R_A0028','C0028','10-MAR-2022','Customer Support Specialist','Bachelor of Science in Computer Science',2);
+INSERT INTO RESUME values('R_A0029','C0029','23-APR-2022','Software Architect','Master of Science in Computer Science',7);
+INSERT INTO RESUME values('R_A0030','C0030','09-APR-2022','Marketing Analyst','Master of Business Administration',2);
+INSERT INTO RESUME values('R_A0031','C0031','27-APR-2022','Content Writer','Bachelor of English',1);
+INSERT INTO RESUME values('R_A0032','C0032','18-JUL-2022','Network Administrator','Bachelor of Science in Computer Science',3);
+INSERT INTO RESUME values('R_A0033','C0033','02-MAY-2022','IT Consultant','Master of Science in Information Technology',4);
+INSERT INTO RESUME values('R_A0034','C0034','24-FEB-2022','Business Analyst','Bachelor of Business Administration',1);
+INSERT INTO RESUME values('R_A0035','C0035','11-APR-2022','Quality Assurance Analyst','Bachelor of Science in Computer Science',2);
+INSERT INTO RESUME values('R_A0036','C0036','28-APR-2022','Social Media Manager','Bachelor of Business Administration',1);
+INSERT INTO RESUME values('R_A0037','C0037','15-MAR-2022','Project Coordinator','Bachelor of Science in Engineering',2);
+INSERT INTO RESUME values('R_A0038','C0038','07-JUL-2022','UX Designer','Bachelor of Fine Arts',4);
+INSERT INTO RESUME values('R_A0039','C0039','29-APR-2022','Software Tester','Bachelor of Science in Computer Science',2);
+INSERT INTO RESUME values('R_A0040','C0040','05-APR-2022','Marketing Manager','Master of Business Administration',5);
+INSERT INTO RESUME values('R_A0041','C0041','13-JUN-2022','Graphic Designer','Bachelor of Fine Arts in Graphic Design',2);
+INSERT INTO RESUME values('R_A0042','C0042','20-JUL-2022','Financial Analyst','Bachelor of Science in Finance',3);
+INSERT INTO RESUME values('R_A0043','C0043','02-AUG-2022','Software Engineer','Bachelor of Science in Computer Science',1);
+INSERT INTO RESUME values('R_A0044','C0044','19-JUL-2022','Data Analyst','Bachelor of Science in Statistics',2);
+INSERT INTO RESUME values('R_A0045','C0045','08-MAY-2022','Business Development Manager','Bachelor of Science in Business Administration',4);
+INSERT INTO RESUME values('R_A0046','C0046','23-JUN-2022','Web Developer','Bachelor of Science in Computer Science',1);
+INSERT INTO RESUME values('R_A0047','C0047','11-JUL-2022','Marketing Coordinator','Bachelor of Science in Marketing',2);
+INSERT INTO RESUME values('R_A0048','C0048','07-MAY-2022','Sales Representative','Bachelor of Science in Business Administration',0);
+INSERT INTO RESUME values('R_A0049','C0049','15-JUN-2022','IT Support Specialist','Associate Degree in Information Technology',2);
+INSERT INTO RESUME values('R_A0050','C0050','19-AUG-2022','Human Resources Manager','Bachelor of Science in Human Resources',4);
+INSERT INTO RESUME values('R_A0051','C0051','12-APR-2022','Account Manager','Bachelor of Science in Accounting',3);
+INSERT INTO RESUME values('R_A0052','C0052','29-JUN-2022','Software Developer','Bachelor of Science in Computer Science',2);
+INSERT INTO RESUME values('R_A0053','C0053','27-JUL-2022','Marketing Specialist','Bachelor of Science in Marketing',1);
+INSERT INTO RESUME values('R_A0054','C0054','03-AUG-2022','Financial Advisor','Bachelor of Science in Finance',3);
+INSERT INTO RESUME values('R_A0055','C0055','01-JUL-2022','Software Engineer','Bachelor of Science in Computer Science',2);
+INSERT INTO RESUME values('R_A0056','C0056','10-MAY-2022','Content Writer','Bachelor of Arts in English Literature',0);
+INSERT INTO RESUME values('R_A0057','C0057','11-JUN-2022','Graphic Designer','Bachelor of Fine Arts in Graphic Design',1);
+INSERT INTO RESUME values('R_A0058','C0058','18-JUL-2022','Business Analyst','Bachelor of Science in Business Administration',2);
+INSERT INTO RESUME values('R_A0059','C0059','12-MAY-2022','Sales Manager','Bachelor of Science in Business Administration',4);
+INSERT INTO RESUME values('R_A0060','C0060','05-SEP-2022','IT Project Manager','Bachelor of Science in Information Technology',5);
+INSERT INTO RESUME VALUES ('R_A0061', 'C0061', '15-DEC-2022', 'Marketing Manager', 'Bachelor of Business Administration', 5);
+INSERT INTO RESUME VALUES ('R_A0062', 'C0062', '03-APR-2023', 'Software Engineer', 'Master of Science in Computer Science', 3);
+INSERT INTO RESUME VALUES ('R_A0063', 'C0063', '22-SEP-2023', 'Graphic Designer', 'Bachelor of Fine Arts', 2);
+INSERT INTO RESUME VALUES ('R_A0064', 'C0064', '11-JAN-2024', 'Human Resources Coordinator', 'Bachelor of Science in Human Resource Management', 1);
+INSERT INTO RESUME VALUES ('R_A0065', 'C0065', '09-OCT-2024', 'Business Analyst', 'Master of Business Administration', 4);
+INSERT INTO RESUME VALUES ('R_A0066', 'C0066', '19-JUN-2024', 'Marketing Coordinator', 'Bachelor of Science in Marketing', 2);
+INSERT INTO RESUME VALUES ('R_A0067', 'C0067', '06-JAN-2023', 'Sales Manager', 'Bachelor of Science in Sales', 6);
+INSERT INTO RESUME VALUES ('R_A0068', 'C0068', '28-MAR-2024', 'Web Developer', 'Bachelor of Science in Computer Science', 2);
+INSERT INTO RESUME VALUES ('R_A0069', 'C0069', '15-SEP-2023', 'Customer Service Representative', 'Bachelor of Science in Business Administration', 3);
+INSERT INTO RESUME VALUES ('R_A0070', 'C0070', '01-JUL-2024', 'Project Manager', 'Master of Science in Project Management', 7);
+INSERT INTO RESUME VALUES ('R_A0071', 'C0071', '18-FEB-2023', 'IT Support Specialist', 'Bachelor of Science in Information Technology', 2);
+INSERT INTO RESUME VALUES ('R_A0072', 'C0072', '29-JUN-2023', 'Financial Analyst', 'Bachelor of Science in Finance', 3);
+INSERT INTO RESUME VALUES ('R_A0073', 'C0073', '07-NOV-2022', 'Social Media Manager', 'Bachelor of Science in Communication', 4);
+INSERT INTO RESUME VALUES ('R_A0074', 'C0074', '02-DEC-2023', 'Software Developer', 'Bachelor of Science in Computer Science', 4);
+INSERT INTO RESUME VALUES ('R_A0075', 'C0075', '12-MAY-2023', 'Content Writer', 'Bachelor of Arts in English', 2);
+INSERT INTO RESUME VALUES ('R_A0076', 'C0076', '09-SEP-2024', 'HR Manager', 'Master of Business Administration', 6);
+INSERT INTO RESUME VALUES ('R_A0077', 'C0077', '22-JUL-2023', 'Web Designer', 'Bachelor of Fine Arts in Web Design', 3);
+INSERT INTO RESUME VALUES ('R_A0078', 'C0078', '30-APR-2024', 'IT Manager', 'Bachelor of Science in Information Technology', 8);
+INSERT INTO RESUME VALUES ('R_A0079', 'C0079', '15-FEB-2023', 'Marketing Specialist', 'Bachelor of Science in Marketing', 2);
+INSERT INTO RESUME VALUES ('R_A0080', 'C0080', '23-OCT-2023', 'Software Engineer', 'Master of Science in Information Technology',5);
+INSERT INTO RESUME values('R_A0081','C0081','13-MAY-2023','Marketing Manager','Bachelor of Science in Business Administration',8);
+INSERT INTO RESUME values('R_A0082','C0082','09-SEP-2022','Data Analyst','Bachelor of Science in Mathematics',1);
+INSERT INTO RESUME values('R_A0083','C0083','22-JUL-2023','Software Engineer','Bachelor of Science in Computer Science',3);
+INSERT INTO RESUME values('R_A0084','C0084','01-NOV-2022','Human Resources Manager','Bachelor of Science in Psychology',6);
+INSERT INTO RESUME values('R_A0085','C0085','06-DEC-2022','Product Manager','Bachelor of Science in Marketing',5);
+INSERT INTO RESUME values('R_A0086','C0086','16-FEB-2023','Web Developer','Bachelor of Science in Computer Science',2);
+INSERT INTO RESUME values('R_A0087','C0087','11-JAN-2023','Business Analyst','Bachelor of Science in Economics',4);
+INSERT INTO RESUME values('R_A0088','C0088','20-APR-2023','Software Developer','Bachelor of Science in Computer Science',2);
+INSERT INTO RESUME values('R_A0089','C0089','18-JUN-2023','Marketing Specialist','Bachelor of Science in Marketing',3);
+INSERT INTO RESUME values('R_A0090','C0090','02-MAR-2023','Project Manager','Bachelor of Science in Business Administration',4);
+INSERT INTO RESUME values('R_A0091','C0091','07-MAY-2023','Data Scientist','Bachelor of Science in Statistics',2);
+INSERT INTO RESUME values('R_A0092','C0092','28-APR-2023','Software Engineer','Bachelor of Science in Computer Science',4);
+INSERT INTO RESUME values('R_A0093','C0093','10-JUN-2023','Product Manager','Bachelor of Science in Business Administration',5);
+INSERT INTO RESUME values('R_A0094','C0094','19-JAN-2023','Web Developer','Bachelor of Science in Computer Science',1);
+INSERT INTO RESUME values('R_A0095','C0095','27-FEB-2023','Business Analyst','Bachelor of Science in Economics',3);
+INSERT INTO RESUME values('R_A0096','C0096','16-MAR-2023','Software Developer','Bachelor of Science in Computer Science',2);
+INSERT INTO RESUME values('R_A0097','C0097','14-JUL-2023','Marketing Manager','Bachelor of Science in Marketing',6);
+INSERT INTO RESUME values('R_A0098','C0098','23-AUG-2023','Project Manager','Bachelor of Science in Business Administration',3);
+INSERT INTO RESUME values('R_A0099','C0099','09-SEP-2023','Data Analyst','Bachelor of Science in Mathematics',1);
+INSERT INTO RESUME values('R_A0100','C0100','22-OCT-2023','Software Engineer','Bachelor of Science in Computer Science',4);
+
+/*resume selection*/
+INSERT INTO RESUME_SELECTION values('RE_A0001','STFF001','C0001','R_A0001','Test Result fail','04-MAR-2022'       ,'FAIL','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0002','STFF002','C0002','R_A0002','Highly Fulfill all the needed requirement','04-MAR-2022','PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0003','STFF003','C0003','R_A0003','Test Result fail','04-MAR-2022'       ,'FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0004','STFF004','C0004','R_A0004','Fulfill all the needed requirement','10-MAR-2022'       ,'PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0005','STFF005','C0005','R_A0005','Fulfill all the needed requirement','10-MAR-2022'       ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0006','STFF006','C0006','R_A0006','Test Result fail','10-MAR-2022'       ,'FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0007','STFF007','C0007','R_A0007','Fulfill all the needed requirement','20-MAR-2022'       ,'PASS','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0008','STFF008','C0008','R_A0008','Experienced in IT field','20-MAR-2022'                  ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0009','STFF009','C0009','R_A0009','Fulfill all the needed requirement','04-APR-2022'       ,'PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0010','STFF010','C0010','R_A0010','Test Result fail','04-APR-2022'       ,'FAIL','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0011','STFF011','C0011','R_A0011','Test Result fail','05-APR-2022'              ,'FAIL','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0012','STFF012','C0012','R_A0012','Fulfill all the needed requirement','06-APR-2022'       ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0013','STFF013','C0013','R_A0013','Experienced in Marketing','07-APR-2022'                 ,'PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0014','STFF014','C0014','R_A0014','Test Result fail','08-APR-2022'       ,'FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0015','STFF015','C0015','R_A0015','Highly experienced in Accounting','09-APR-2022'         ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0016','STFF016','C0016','R_A0016','Fulfill all the needed requirement','10-APR-2022'       ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0017','STFF017','C0017','R_A0017','Experienced in HR Management','11-APR-2022'             ,'PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0018','STFF018','C0018','R_A0018','Test Result fail','12-APR-2022'       ,'FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0019','STFF019','C0019','R_A0019','Highly experienced in Project Management','13-APR-2022','PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0020','STFF020','C0020','R_A0020','Test Result fail','14-APR-2022'       ,'FAIL','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0021','STFF021','C0021','R_A0021','Experienced in Customer Service','15-APR-2022'          ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0022','STFF022','C0022','R_A0022','Fulfill all the needed requirement','16-APR-2022'       ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0023','STFF023','C0023','R_A0023','Test Result fail','17-APR-2022'    ,'FAIL','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0024','STFF024','C0024','R_A0024','Fulfill all the needed requirement','18-APR-2022'       ,'PASS','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0025','STFF025','C0025','R_A0025','Fulfill all the needed requirement','19-APR-2022'            ,'PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0026','STFF026','C0026','R_A0026','Test Result fail','20-APR-2022'       ,'FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0027','STFF027','C0027','R_A0027','Highly experienced in Data Analysis','21-APR-2022'      ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0028','STFF028','C0028','R_A0028','Test Result fail','22-APR-2023'           ,'FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0029','STFF029','C0029','R_A0029','Fulfill all the needed requirement','23-APR-2023'       ,'PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0030','STFF030','C0030','R_A0030','Experienced in software development','24-APR-2023'      ,'PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0031','STFF031','C0031','R_A0031','Test Result fail','25-APR-2023'       ,'FAIL','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0032','STFF032','C0032','R_A0032','Experience in marketing','26-APR-2023'                  ,'PASS','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0033','STFF033','C0033','R_A0033','Fulfill all the needed requirement','27-APR-2023'       ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0034','STFF034','C0034','R_A0034','Test Result fail','28-APR-2023'                ,'FAIL','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0035','STFF035','C0035','R_A0035','Fulfill all the needed requirement','29-APR-2023'       ,'PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0036','STFF036','C0036','R_A0036','Experience in project management','30-APR-2023'         ,'PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0037','STFF037','C0037','R_A0037','Test Result fail','01-MAY-2023'       ,'FAIL','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0038','STFF038','C0038','R_A0038','Experience in human resources','02-MAY-2023'            ,'PASS','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0039','STFF039','C0039','R_A0039','Test Result fail','03-MAY-2023'       ,'FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0040','STFF040','C0040','R_A0040','Experienced in web development','04-MAY-2023'           ,'PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0041','STFF041','C0041','R_A0041','Fulfill all the needed requirement','05-MAY-2023'       ,'PASS','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0042','STFF042','C0042','R_A0042','Test Result fail','06-MAY-2023'             ,'FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0043','STFF043','C0043','R_A0043','Test Result fail','07-MAY-2023'       ,'FAIL','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0044','STFF044','C0044','R_A0044','Test Result fail','08-MAY-2023'                     ,'FAIL','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0045','STFF045','C0045','R_A0045','Fulfill all the needed requirement','12-APR-2023'       ,'PASS','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0046','STFF046','C0046','R_A0046','Fulfill all the needed requirement','12-APR-2023'       ,'PASS','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0047','STFF047','C0047','R_A0047','Test Result fail','13-APR-2023'               ,'FAIL','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0048','STFF048','C0048','R_A0048','Fulfill all the needed requirement','13-APR-2023'       ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0049','STFF049','C0049','R_A0049','Fulfill all the needed requirement','14-APR-2023'       ,'PASS','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0050','STFF050','C0050','R_A0050','Test Result fail','14-APR-2023'       ,'FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0051','STFF051','C0051','R_A0051','Fulfill all the needed requirement','15-APR-2023'       ,'PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0052','STFF052','C0052','R_A0052','Experienced in accounting field','15-APR-2023'          ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0053','STFF053','C0053','R_A0053','Test Result fail','16-APR-2023'       ,'FAIL','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0054','STFF054','C0054','R_A0054','Fulfill all the needed requirement','16-APR-2023'       ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0055','STFF055','C0055','R_A0055','Test Result fail','17-APR-2023'       ,'FAIL','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0056','STFF056','C0056','R_A0056','Experienced in marketing field','17-APR-2023'           ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0057','STFF057','C0057','R_A0057','Test Result fail','18-APR-2023'       ,'FAIL','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0058','STFF058','C0058','R_A0058','Fulfill all the needed requirement','18-APR-2023'       ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0059','STFF059','C0059','R_A0059','Fulfill all the needed requirement','19-APR-2023'       ,'PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0060','STFF060','C0060','R_A0060','Experienced in HR field','19-APR-2023'                  ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0061','STFF061','C0061','R_A0061','Fulfill all the needed requirement','20-APR-2023'       ,'PASS','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0062','STFF062','C0062','R_A0062','Test Result fail','18-JUN-2023','FAIL','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0063','STFF063','C0063','R_A0063','Highly Fulfill all the needed requirement','01-APR-2023','PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0064','STFF064','C0064','R_A0064','Fulfill all the needed requirement','01-APR-2023','PASS','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0065','STFF065','C0065','R_A0065','Test Result fail','12-JAN-2023','FAIL','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0066','STFF066','C0066','R_A0066','Fulfill all the needed requirement','16-JAN-2023','PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0067','STFF067','C0067','R_A0067','Test Result fail','18-JAN-2023','FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0068','STFF068','C0068','R_A0068','Test Result fail','20-JAN-2023','FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0069','STFF069','C0069','R_A0069','Fulfill all the needed requirement','23-JAN-2023','PASS','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0070','STFF070','C0070','R_A0070','Fulfill all the needed requirement','23-APR-2023','PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0071','STFF071','C0071','R_A0071','Test Result fail','30-JAN-2023','FAIL','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0072','STFF072','C0072','R_A0072','Fulfill all the needed requirement','23-APR-2023','PASS','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0073','STFF073','C0073','R_A0073','Test Result fail','05-FEB-2023','FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0074','STFF074','C0074','R_A0074','Highly Fulfill all the needed requirement','05-APR-2023','PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0075','STFF075','C0075','R_A0075','Fulfill all the needed requirement','10-FEB-2023','PASS','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0076','STFF076','C0076','R_A0076','Test Result fail','23-FEB-2023','FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0077','STFF077','C0077','R_A0077','Fulfill all the needed requirement','12-JAN-2023'       ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0078','STFF078','C0078','R_A0078','Test Result fail','15-JAN-2023'      ,'FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0079','STFF079','C0079','R_A0079','Fulfill all the needed requirement','18-JAN-2023'       ,'PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0080','STFF080','C0080','R_A0080','Strong communication skills','20-JAN-2023'              ,'PASS','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0081','STFF081','C0081','R_A0081','Test Result fail','23-JAN-2023'       ,'FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0082','STFF082','C0082','R_A0082','Experience in project management','26-JUN-2023'         ,'PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0083','STFF083','C0083','R_A0083','Fulfill all the needed requirement','29-JAN-2023'       ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0084','STFF084','C0084','R_A0084','Strong analytical skills','02-FEB-2023'                 ,'PASS','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0085','STFF085','C0085','R_A0085','Test Result fail','05-FEB-2023'       ,'FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0086','STFF086','C0086','R_A0086','Test Result fail','08-FEB-2023'    ,'FAIL','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0087','STFF087','C0087','R_A0087','Test Result fail','11-FEB-2023'       ,'FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0088','STFF088','C0088','R_A0088','Experience in web development','14-FEB-2023'            ,'PASS','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0089','STFF089','C0089','R_A0089','Fulfill all the needed requirement','17-FEB-2023'       ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0090','STFF090','C0090','R_A0090','Experience in software testing','20-APR-2023'           ,'PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0091','STFF091','C0091','R_A0091','Test Result fail','23-FEB-2023'       ,'FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0092','STFF092','C0092','R_A0092','Strong problem-solving skills','26-FEB-2023'            ,'PASS','NORMAL');
+INSERT INTO RESUME_SELECTION values('RE_A0093','STFF093','C0093','R_A0093','Test Result fail','01-MAR-2023'       ,'FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0094','STFF094','C0094','R_A0094','Experience in machine learning','04-MAR-2023'           ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0095','STFF095','C0095','R_A0095','Fulfill all the needed requirement','19-APR-2023'       ,'PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0096','STFF096','C0096','R_A0096','Test Result fail','19-APR-2023','FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0097','STFF097','C0097','R_A0097','Fulfill all the needed requirement','19-APR-2023'       ,'PASS','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0098','STFF098','C0098','R_A0098','Fulfill all the needed requirement','19-APR-2023'       ,'PASS','BEST');
+INSERT INTO RESUME_SELECTION values('RE_A0099','STFF099','C0099','R_A0099','Test Result fail','19-APR-2023'       ,'FAIL','GOOD');
+INSERT INTO RESUME_SELECTION values('RE_A0100','STFF100','C0100','R_A0100','Test Result fail','19-APR-2023'       ,'FAIL','GOOD');
